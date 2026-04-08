@@ -22,11 +22,11 @@ void initPlateauAvecNULL(TplateauJeu jeu,int largeur, int hauteur){
 
     //POUR LA DEMO D'AFFICHAGE UNIQUEMENT, A SUPPRIMER
     //(les tours ici ne sont pas li?es aux listes des unit?s de vos joueurs)
-    jeu[5][3]=creeTourSol(5,3);
-    jeu[3][3]=creeTourAir(3,3);
-    jeu[4][1]=creeTourRoi(4,1);
-    jeu[4][15]=creeTourAir(4,15);
-    jeu[5][17]=creeDragon(5,17);
+    // jeu[5][3]=creeTourSol(5,3);
+    // jeu[3][3]=creeTourAir(3,3);
+    // jeu[4][1]=creeTourRoi(4,1);
+    // jeu[4][15]=creeTourAir(4,15);
+    // jeu[5][17]=creeDragon(5,17);
     //FIN DEMO AFFICHAGE
 }
 
@@ -124,11 +124,11 @@ void affichePlateauConsole(TplateauJeu jeu, int largeur, int hauteur){
     printf("\n");
     for (int j=0;j<hauteur;j++){
         for (int i=0;i<largeur;i++){
-                // A ne pas donner aux etudiants
+
             if (jeu[i][j] != NULL){
                     printf("%s",InitialeUnite[jeu[i][j]->nom]);
             }
-            else printf(" ");  //cad pas d'unit? sur cette case
+            else printf(".");  //cad pas d'unit? sur cette case
         }
         printf("\n");
     }
