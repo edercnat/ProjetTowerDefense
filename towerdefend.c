@@ -199,3 +199,76 @@ Tunite *creeDragon(int posx, int posy){
     //nouv->cible = NULL;
     return nouv;
 }
+
+/*Stats à revoir*/
+Tunite *creeArcher(int posx, int posy){
+    Tunite *nouv = (Tunite*)malloc(sizeof(Tunite));
+    nouv->nom = archer;
+    nouv->cibleAttaquable = solEtAir;
+    nouv->maposition = sol;
+    nouv->pointsDeVie = 150;
+    nouv->vitesseAttaque = 0.75;
+    nouv->degats = 110;
+    nouv->portee = 2;
+    nouv->vitessedeplacement = 2;
+    nouv->posX = posx;
+    nouv->posY = posy;
+    nouv->peutAttaquer = 1;
+    //nouv->cible = NULL;
+    return nouv;
+}
+
+/*Stats à revoir*/
+Tunite *creeGargouille(int posx, int posy){
+    Tunite *nouv = (Tunite*)malloc(sizeof(Tunite));
+    nouv->nom = gargouille;
+    nouv->cibleAttaquable = solEtAir;
+    nouv->maposition = air;
+    nouv->pointsDeVie = 100;
+    nouv->vitesseAttaque = 0.60;
+    nouv->degats = 80;
+    nouv->portee = 1;
+    nouv->vitessedeplacement = 2;
+    nouv->posX = posx;
+    nouv->posY = posy;
+    nouv->peutAttaquer = 1;
+    //nouv->cible = NULL;
+    return nouv;
+}
+
+
+/*
+Cherche la cellule du roi et regarde si elle est détruite
+
+Params : 
+        TListePlayer player -> Liste du joueur avec le roi
+
+Returns: 
+        true  -> la tour du roi est détruite
+        false -> la tour n'est pas détruite
+        NULL  -> si la liste ne contient pas de roi
+(Testée et 100% fonctionnelle (normallement))
+*/
+bool tourRoiDetruite(TListePlayer player){
+
+    TListePlayer tmp = player;
+
+    for (int i = 0; i < getNbreCell(player); i++){
+
+        if (getptrData(player).nom == tourRoi){ //Condition validée si la cellule pointée est celle du roi
+
+            if (getptrData(player).pointsDeVie > 0){ //Si le roi a plus de 0hp return false (Tour du roi non détruite)
+                return false;
+            }
+            else { //Tour du roi détruite
+                return true;
+            }
+        }
+        else { //On avance dans la liste pour trouver le roi
+            tmp = getptrNextCell(tmp);
+        }
+    }
+
+    printf("Erreur: le roi n'est pas présent dans cette liste \n");
+    return NULL;
+}

@@ -51,6 +51,28 @@ int main(int argc, char* argv[])
         initPlateauAvecNULL(jeu,LARGEURJEU,HAUTEURJEU);
         affichePlateauConsole(jeu,LARGEURJEU,HAUTEURJEU);
 
+        //Initialistaion du chemin
+        int **chemin = initChemin();
+
+        //Initialisation des listes des joueurs
+        TListePlayer PlayerRoi, PlayerAtk;
+        initListe(&PlayerRoi); initListe(&PlayerAtk);
+
+
+        //Ajout du roi
+        Tunite *roi = creeTourRoi(chemin[(NBCOORDPARCOURS-1)][0], chemin[(NBCOORDPARCOURS-1)][1]); //Creation du roi positionné a la dernière case du chemin (ou premiere faudra verifier l'ordre du tableau)
+        PlayerRoi = ajoutEnTete(PlayerRoi, roi);
+
+
+
+        //Test
+        PlayerRoi->pdata->pointsDeVie = 0;
+        bool etatRoi = tourRoiDetruite(PlayerAtk);
+
+        if (etatRoi) printf("La tour est detruite\n");
+        else if (!etatRoi) printf("La tour n'est pas détruite");
+
+
 
 
         // prepareAllSpriteDuJeu(jeu,tabParcours,LARGEURJEU,HAUTEURJEU,TabSprite,pWinSurf);
@@ -87,7 +109,7 @@ int main(int argc, char* argv[])
                 //APPELEZ ICI VOS FONCTIONS QUI FONT EVOLUER LE JEU
 
                 //a supprimer, c'est juste pour attirer votre attention sur comment est g�r� le chemin (un tableau 2D de coordonn�es)(regarder le corps de afficheCoordonneesParcours)
-                afficheCoordonneesParcours(tabParcours,NBCOORDPARCOURS);
+                //afficheCoordonneesParcours(tabParcours,NBCOORDPARCOURS);
 
                 /* dans votre fonction "combat" que vous appelerez ici, dans son code utiliser dessineAttaque
 

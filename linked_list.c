@@ -43,11 +43,10 @@ void afficheListe(TListePlayer l){
     }
 }
 
-TListePlayer ajoutEnTete(TListePlayer l, Tunite data){
+TListePlayer ajoutEnTete(TListePlayer l, Tunite *data){
 
     struct T_cell *nouv = (struct T_cell*)malloc(sizeof(struct T_cell));
-    nouv->pdata = (Tunite*)malloc(sizeof(Tunite));
-    *(nouv->pdata) = data;
+    nouv->pdata = data;
 
     if (listeVide(l)){
         nouv->suiv = NULL;
@@ -61,11 +60,10 @@ TListePlayer ajoutEnTete(TListePlayer l, Tunite data){
 }
 
 
-TListePlayer ajoutEnFin(TListePlayer l, Tunite data){
+TListePlayer ajoutEnFin(TListePlayer l, Tunite *data){
 
     struct T_cell *nouv = (struct T_cell*)malloc(sizeof(struct T_cell));
-    nouv->pdata = (Tunite*)malloc(sizeof(Tunite));
-    *(nouv->pdata) = data;
+    nouv->pdata = data;
 
     TListePlayer tmp = l;
 
@@ -87,7 +85,7 @@ TListePlayer ajoutEnFin(TListePlayer l, Tunite data){
 }
 
 
-TListePlayer ajoutEnN(TListePlayer l, int pos, Tunite data){
+TListePlayer ajoutEnN(TListePlayer l, int pos, Tunite *data){
 
     if (listeVide(l) || pos == 0){
         l = ajoutEnTete(l, data);
@@ -112,8 +110,7 @@ TListePlayer ajoutEnN(TListePlayer l, int pos, Tunite data){
         }
         else {
             struct T_cell* nouv = (struct T_cell*)malloc(sizeof(struct T_cell));
-            nouv->pdata = (Tunite*)malloc(sizeof(Tunite));
-            *(nouv->pdata) = data;
+            nouv->pdata = data;
             nouv->suiv = tmp->suiv;
             tmp->suiv = nouv;
             return l;
@@ -125,7 +122,11 @@ TListePlayer ajoutEnN(TListePlayer l, int pos, Tunite data){
 TListePlayer suppEnFin(TListePlayer l){
 
     if (listeVide(l)) return NULL; //Cas liste vide
-    else if (l->suiv == NULL) free(l->pdata); free(l); return NULL; //Cas liste à 1 élément
+    else if (l->suiv == NULL) {
+        free(l->pdata); 
+        free(l); 
+        return NULL;
+    }; //Cas liste à 1 élément
 
     TListePlayer tmp = l;
     
@@ -158,7 +159,7 @@ TListePlayer suppEnTete(TListePlayer l){
 TListePlayer suppEnN(TListePlayer l, int pos){
 
     if (listeVide(l)) {return NULL;}
-    else if (l->suiv == NULL && pos > 0) {printf("Erreur : Indice %d trop élevé\n", pos); return NULL;}
+    else if (l->suiv == NULL && pos > 0) {printf("Erreur : Indice %d trop élevé\n", pos); return l;}
     else if (pos == 0) {return suppEnTete(l);};
 
     TListePlayer tmp = l;
@@ -209,8 +210,8 @@ TListePlayer getptrLastCell(TListePlayer l){
     return l;    
 }
 
-Tunite getptrData(TListePlayer l){
-    return *(l->pdata);
+Tunite *getptrData(TListePlayer l){
+    return l->pdata;
 }
 
 
@@ -225,3 +226,6 @@ int getNbreCell(TListePlayer l){
     
     return compteur;
 }
+
+
+

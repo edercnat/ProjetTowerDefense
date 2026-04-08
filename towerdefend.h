@@ -1,6 +1,8 @@
 #ifndef TOWERDEFEND_H_INCLUDED
 #define TOWERDEFEND_H_INCLUDED
 
+#include "stdbool.h"
+
 #define LARGEURJEU 11
 #define HAUTEURJEU 19
 #define NBCOORDPARCOURS 34
@@ -10,7 +12,7 @@
 typedef enum{tourSol, tourAir, tourRoi, archer, chevalier, dragon, gargouille} TuniteDuJeu;
 typedef enum{sol, solEtAir, air } Tcible;
 
-
+typedef struct T_cell *TListePlayer;
 
 typedef struct {
     TuniteDuJeu nom;
@@ -56,9 +58,9 @@ Tunite *creeTourSol(int posx, int posy);
 Tunite *creeTourAir(int posx, int posy);
 Tunite *creeTourRoi(int posx, int posy);
 
-/* fonctions du noyau que vous avez � coder
+/* fonctions du noyau que vous avez � coder */
 
-Bool tourRoiDetruite(TListePlayer player);
+bool tourRoiDetruite(TListePlayer player); /*
 void PositionnePlayerOnPlateau(TListePlayer player, TplateauJeu jeu)
 
 TListePlayer quiEstAPortee(TplateauJeu jeu, Tunite *UniteAttaquante) ; //retourne la liste des cibles possibles
