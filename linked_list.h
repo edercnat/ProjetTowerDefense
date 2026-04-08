@@ -6,7 +6,7 @@ typedef struct T_cell{
     Tunite *pdata; //pointeur vers une unit�
 } *TListePlayer;
 
-
+const char* nomUniteToString(TuniteDuJeu nom);
 void initListe(TListePlayer *l);
 void afficheListe(TListePlayer l);
 bool listeVide(TListePlayer l);
@@ -16,6 +16,14 @@ TListePlayer ajoutEnN(TListePlayer l, int pos, Tunite data);
 TListePlayer suppEnFin(TListePlayer l);
 TListePlayer suppEnTete(TListePlayer l);
 TListePlayer suppEnN(TListePlayer l, int);
+TListePlayer getptrFirstCell(TListePlayer l);
+TListePlayer getptrNextCell(TListePlayer l);
+TListePlayer getptrLastCell(TListePlayer l);
+Tunite getptrData(TListePlayer l);
+int getNbreCell(TListePlayer l);
+
+
+
 
 
 
