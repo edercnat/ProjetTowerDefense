@@ -158,7 +158,7 @@ TListePlayer suppEnTete(TListePlayer l){
 TListePlayer suppEnN(TListePlayer l, int pos){
 
     if (listeVide(l)) {return NULL;}
-    else if (l->suiv == NULL) {free(l->pdata); free(l); return NULL;}
+    else if (l->suiv == NULL && pos > 0) {printf("Erreur : Indice %d trop élevé\n", pos); return NULL;}
     else if (pos == 0) {return suppEnTete(l);};
 
     TListePlayer tmp = l;
@@ -170,7 +170,7 @@ TListePlayer suppEnN(TListePlayer l, int pos){
         compteur++;
     }
     
-    if (compteur < pos-1) printf("Erreur : Indice %d trop élevé\n", pos);
+    if (compteur < pos-1) {printf("Erreur : Indice %d trop élevé\n", pos); return l;}
 
     else {
 
@@ -196,7 +196,7 @@ TListePlayer getptrNextCell(TListePlayer l){
         return l->suiv;
     }
     else {
-        printf("Erreur: dépassement de liste\n");
+        return NULL;
     }
 }
 
