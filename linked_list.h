@@ -4,7 +4,6 @@
 #include "stdbool.h"
 #include "towerdefend.h"
 
-#endif
 
 
 
@@ -27,11 +26,9 @@ TListePlayer suppEnN(TListePlayer l, int);
 TListePlayer getptrFirstCell(TListePlayer l);
 TListePlayer getptrNextCell(TListePlayer l);
 TListePlayer getptrLastCell(TListePlayer l);
-Tunite getptrData(TListePlayer l);
+Tunite *getptrData(TListePlayer l);
 int getNbreCell(TListePlayer l);
 
 
-
-
-
+#endif
 

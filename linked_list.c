@@ -177,9 +177,9 @@ TListePlayer suppEnN(TListePlayer l, int pos){
 
         struct T_cell *tmp2 = tmp->suiv;
         tmp->suiv = tmp->suiv->suiv;
+        
         free(tmp2->pdata);
         free(tmp2);
-        
 
         return l;
     }
@@ -210,8 +210,8 @@ TListePlayer getptrLastCell(TListePlayer l){
     return l;    
 }
 
-Tunite *getptrData(TListePlayer l){
-    return l->pdata;
+Tunite* getptrData(TListePlayer l){
+    return (l->pdata);
 }
 
 

@@ -20,15 +20,6 @@ void initPlateauAvecNULL(TplateauJeu jeu,int largeur, int hauteur){
             jeu[i][j] = NULL;
         }
     }
-
-    //POUR LA DEMO D'AFFICHAGE UNIQUEMENT, A SUPPRIMER
-    //(les tours ici ne sont pas li?es aux listes des unit?s de vos joueurs)
-    // jeu[5][3]=creeTourSol(5,3);
-    // jeu[3][3]=creeTourAir(3,3);
-    // jeu[4][1]=creeTourRoi(4,1);
-    // jeu[4][15]=creeTourAir(4,15);
-    // jeu[5][17]=creeDragon(5,17);
-    //FIN DEMO AFFICHAGE
 }
 
 
@@ -236,6 +227,24 @@ Tunite *creeGargouille(int posx, int posy){
     return nouv;
 }
 
+Tunite *creeChevalier(int posx, int posy){
+    Tunite *nouv = (Tunite*)malloc(sizeof(Tunite));
+    nouv->nom = chevalier;
+    nouv->cibleAttaquable = sol;
+    nouv->maposition = sol;
+    nouv->pointsDeVie = 250;
+    nouv->vitesseAttaque = 1.5;
+    nouv->degats = 80;
+    nouv->portee = 1;
+    nouv->vitessedeplacement = 1;
+    nouv->posX = posx;
+    nouv->posY = posy;
+    nouv->peutAttaquer = 1;
+    //nouv->cible = NULL;
+    return nouv;
+}
+
+
 
 /*
 Cherche la cellule du roi et regarde si elle est détruite
@@ -255,9 +264,9 @@ bool tourRoiDetruite(TListePlayer player){
 
     for (int i = 0; i < getNbreCell(player); i++){
 
-        if (getptrData(player).nom == tourRoi){ //Condition validée si la cellule pointée est celle du roi
+        if (getptrData(player)->nom == tourRoi){ //Condition validée si la cellule pointée est celle du roi
 
-            if (getptrData(player).pointsDeVie > 0){ //Si le roi a plus de 0hp return false (Tour du roi non détruite)
+            if (getptrData(player)->pointsDeVie > 0){ //Si le roi a plus de 0hp return false (Tour du roi non détruite)
                 return false;
             }
             else { //Tour du roi détruite
@@ -271,4 +280,61 @@ bool tourRoiDetruite(TListePlayer player){
 
     printf("Erreur: le roi n'est pas présent dans cette liste \n");
     return NULL;
+}
+
+/*Positionne les cellules d'un joueur sur le tableau de jeu
+Params: 
+    TListePlayer player -> Liste du joueur
+    TplateauJeu jeu     -> plateau du jeu
+
+Returns:
+    Met a jour le tableau jeu avec les adresses
+
+*/
+void PositionnePlayerOnPlateau(TListePlayer player, TplateauJeu jeu){
+    TListePlayer tmp = player;
+
+    for (int i = 0; i < getNbreCell(player); i++){
+        if (jeu[getptrData(tmp)->posX][getptrData(tmp)->posY] == NULL){
+            jeu[getptrData(tmp)->posX][getptrData(tmp)->posY] = getptrData(tmp); //case = adresse de l'unité
+        }
+        else {printf("Erreur: positionnement %s ; case (%d, %d) déjà occupée par %s\n",
+            nomUniteToString(getptrData(tmp)->nom), getptrData(tmp)->posX, getptrData(tmp)->posY, nomUniteToString((jeu[getptrData(tmp)->posX][getptrData(tmp)->posY])->nom));
+        };
+
+        tmp = getptrNextCell(tmp);
+    }
+}
+
+
+/*
+!!!Fonctionnement pas sûr!!! 
+J'ai du modifier la signature pour avoir un truc qui marche bien.
+Je ne sais pas si elle doit modifier elle meme le tableau de jeu mais sinon il y a une erreur avec l'appelle d'affichage car il ne sait pas comment afficher une adresse free.
+Donc fonction a vérifier
+*/
+void supprimerUnite(TListePlayer *player, Tunite *UniteDetruite, TplateauJeu jeu){
+    if (*player == NULL) {printf("Erreur : Liste déjà vide\n"); return;};
+    TListePlayer tmp = *player;
+
+    int compteur = 0;
+    while (tmp->pdata != UniteDetruite && tmp->suiv != NULL)
+    {
+        tmp = tmp->suiv;
+        compteur++;
+    }
+
+    if (tmp->pdata == UniteDetruite){
+        jeu[getptrData(tmp)->posX][getptrData(tmp)->posY] = NULL;
+        *player = suppEnN(*player, compteur);
+    }
+    else printf("Erreur: l'unité n'est pas présente dans la liste\n");
+}
+
+/*Ajoute simplement une unité a la fin de la liste d'un joueur
+Objectif: etre combiné à PositionnePlayerOnPlateau à chaque appel de boucle pour mettre à jour
+
+*/
+void AjouterUnite(TListePlayer *player, Tunite *nouvelleUnite){
+    *player = ajoutEnFin(*player, nouvelleUnite);
 }
