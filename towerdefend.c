@@ -394,9 +394,6 @@ Ex : Dragon est en (0,0) et il a une vitesse de deplacement de 1.5 m/s
     - boucle 1 : PosInd [1.5] -> sera arrondi à 1 et donc placé case 1
     - boucle 2 : PosInd [3] -> sera placé à la case 3 (aucune vitesse n'est perdue)
 
-Exception: Si 
-
-
 */
 void calculNewInd(TListePlayer player, float *posInd){
 
@@ -419,6 +416,11 @@ void calculNewInd(TListePlayer player, float *posInd){
         tmp = getptrNextCell(tmp);
     }
 }
+
+
+
+
+
 
 
 void print_list(float *l, int taille){
