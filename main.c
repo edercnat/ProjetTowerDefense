@@ -68,11 +68,13 @@ int main(int argc, char* argv[])
         //Ajout du roi
         Tunite *roi = creeTourRoi(chemin[(NBCOORDPARCOURS-1)][0], chemin[(NBCOORDPARCOURS-1)][1]); //Creation du roi positionné a la dernière case du chemin (ou premiere faudra verifier l'ordre du tableau)
         AjouterUnite(&PlayerRoi, roi, &posRoi);
-
-
+        PositionnePlayerOnPlateau(PlayerRoi, jeu);
+        // AjouterUnite(&PlayerAtk, randomUnite(chemin), &posAtk);
+        // calculNewInd(PlayerAtk, posAtk, chemin, jeu);
+        // updateCoord(PlayerAtk, posAtk, chemin, jeu);
         while (!tourRoiDetruite(PlayerRoi))
         {
-                int spawn = rand()%2;
+                int spawn = rand()%2; //random pour faire apparaitre une unité
 
                 if (spawn == 0){
                 AjouterUnite(&PlayerAtk, randomUnite(chemin), &posAtk);
@@ -80,11 +82,34 @@ int main(int argc, char* argv[])
                 PositionnePlayerOnPlateau(PlayerAtk, jeu);
                 affichePlateauConsole(jeu, LARGEURJEU, HAUTEURJEU, chemin);
 
-                calculNewInd(PlayerAtk, posAtk);
+                calculNewInd(PlayerAtk, posAtk, chemin, jeu);
                 updateCoord(PlayerAtk, posAtk, chemin, jeu);
 
+                //Attaque sur le Roi
+
+                TListePlayer tmp = PlayerAtk;
+                int compteur = 0;
+                for (int i = 0; i < getNbreCell(PlayerAtk); i++){
+                        atkKing(tmp->pdata, (int)posAtk[i], PlayerRoi);
+                        if (canDamageKing(tmp->pdata, (int)posAtk[i])){
+                                compteur++;
+                        }
+                        if (tourRoiDetruite(PlayerRoi)){
+                                printf("Le Roi est mort !\n\n");
+                                break;
+                        }
+                        tmp = tmp->suiv;
+                }
+
+                if (compteur > 0 && !tourRoiDetruite(PlayerRoi)) printf("Touché x%d\n\n", compteur);
+
+                printf("Vie du Roi : %d \n", PlayerRoi->pdata->pointsDeVie);
+
+
                 sleep(1);
-                system("clear");
+                if (!tourRoiDetruite(PlayerRoi)){
+                        system("clear");
+                }
         }
         
 

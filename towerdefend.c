@@ -165,6 +165,7 @@ void affichePlateauConsole(TplateauJeu jeu, int largeur, int hauteur, int **chem
         }
         printf("\n");
     }
+    printf("\n");
 }
 
 Tunite *creeTourSol(int posx, int posy){
@@ -204,7 +205,7 @@ Tunite *creeTourRoi(int posx, int posy){
     nouv->nom = tourRoi;
     nouv->cibleAttaquable = solEtAir;
     nouv->maposition = sol;
-    nouv->pointsDeVie = 800;
+    nouv->pointsDeVie = 8000;
     nouv->vitesseAttaque = 1.2;
     nouv->degats = 180;
     nouv->portee = 4;
@@ -241,8 +242,8 @@ Tunite *creeArcher(int posx, int posy){
     nouv->pointsDeVie = 150;
     nouv->vitesseAttaque = 0.75;
     nouv->degats = 110;
-    nouv->portee = 2;
-    nouv->vitessedeplacement = 5.5;
+    nouv->portee = 10;
+    nouv->vitessedeplacement = 3;
     nouv->posX = posx;
     nouv->posY = posy;
     nouv->peutAttaquer = 1;
@@ -277,7 +278,7 @@ Tunite *creeChevalier(int posx, int posy){
     nouv->vitesseAttaque = 1.5;
     nouv->degats = 80;
     nouv->portee = 1;
-    nouv->vitessedeplacement = 1;
+    nouv->vitessedeplacement = 3;
     nouv->posX = posx;
     nouv->posY = posy;
     nouv->peutAttaquer = 1;
@@ -311,6 +312,7 @@ bool tourRoiDetruite(TListePlayer player){
                 return false;
             }
             else { //Tour du roi détruite
+                player->pdata->pointsDeVie = 0;
                 return true;
             }
         }
@@ -411,35 +413,44 @@ Ex : Dragon est en (0,0) et il a une vitesse de deplacement de 1.5 m/s
     - boucle 1 : PosInd [1.5] -> sera arrondi à 1 et donc placé case 1
     - boucle 2 : PosInd [3] -> sera placé à la case 3 (aucune vitesse n'est perdue)
 
-    Penser à free
+    Penser à free à la fin de la boucle de jeu
 */
-void calculNewInd(TListePlayer player, float *posInd){
+void calculNewInd(TListePlayer player, float *posInd, int **chemin, TplateauJeu jeu){
 
     TListePlayer tmp = player;
+    int indKing = NBCOORDPARCOURS - 1;
     int taille = getNbreCell(player);
     for (int i = 0; i < taille; i++){
 
-        float new_ind = posInd[i] + getptrData(tmp)->vitessedeplacement;
-        if (new_ind >= NBCOORDPARCOURS){
-            new_ind = NBCOORDPARCOURS-1;
-        }
+        if (!canDamageKing(tmp->pdata, (int)posInd[i]) && (indKing - posInd[i] - tmp->pdata->vitessedeplacement) > tmp->pdata->portee){
+            //Si je ne peux pas encore frapper le Roi et que ma future position est encore trop loin de ma portée, alors j'avance
+            float new_ind = posInd[i] + getptrData(tmp)->vitessedeplacement;
 
-        if (!verifCaseLibre(new_ind, posInd, taille)){
-            posInd[i] = new_ind;
-        }
-        else {
-            for( float j = new_ind-1; (int)j > (int)posInd[i]; j--){
-                if (!verifCaseLibre(j, posInd, taille)){
-                    posInd[i] = j;
-                }
+            if (!verifCaseLibre(new_ind, posInd, taille)){
+                //Si la case à distance (vitessedeplacement) est libre on se deplace
+                posInd[i] = new_ind;
             }
+            else {
+                for( float j = new_ind-1; (int)j > (int)posInd[i]; j--){
+                    //Sinon on traque toutes les cases avant (de la plus loin a la plus proche) pour trouver ou se mettre
+                    if (!verifCaseLibre(j, posInd, taille)){
+                        posInd[i] = j;
+                        break;
+                    }
+                }
+        }
         }
 
+        else {
+            //Si je peux frapper le roi OU que ma future position est à portée de tir, je cherche la case ideale avec farestDist
+            posInd[i] = posInd[i] + farestDist(tmp->pdata, (int)posInd[i], chemin, jeu);
+        }
+        
         tmp = getptrNextCell(tmp);
     }
 }
 
-
+/*Met à jour toutes les coordonnées des unités par rapport à la indice de position dans le chemin*/
 void updateCoord(TListePlayer player, float *posInd, int **chemin, TplateauJeu jeu){
 
     TListePlayer tmp = player;
@@ -458,6 +469,8 @@ void updateCoord(TListePlayer player, float *posInd, int **chemin, TplateauJeu j
     }
 }
 
+/*Creer une unite de manière aleatoire
+Return: type <Tunite *> -> poiteur vers une unité*/
 Tunite *randomUnite(int** chemin){
 
     int result = rand()%4;
@@ -469,19 +482,79 @@ Tunite *randomUnite(int** chemin){
         unite = creeArcher(chemin[0][0],chemin[0][1]);
         break;
     case 1: 
-        unite = creeGargouille(chemin[0][0],chemin[0][1]);
+        unite = creeChevalier(chemin[0][0],chemin[0][1]);
         break;
     case 2:
         unite = creeDragon(chemin[0][0],chemin[0][1]);
         break;
     case 3:
-        unite = creeChevalier(chemin[0][0],chemin[0][1]);
+        unite = creeGargouille(chemin[0][0],chemin[0][1]);
         break;
     default:
         break;
     }
 
     return unite;
+}
+
+/*L'unité est-elle a distance pour frapper le roi
+Return: 
+type <bool> : true  -> elle peut taper
+              false -> elle ne peut pas taper
+*/
+bool canDamageKing(Tunite *unite, int indice){
+    int indKing = NBCOORDPARCOURS-1;
+    int distance = indKing - indice;  
+
+    if (distance <= unite->portee) return true;
+    else return false;
+
+}
+
+/*Determine la case disponible la plus éloignée du Roi tout en restant à la plus grande distance possible
+(à combiner avec calculNewInd);
+
+Return: type <int> -> nbre de cases à avancer (entre 0 et vitessedeplacement)
+*/
+int farestDist(Tunite *unite, int indice, int** chemin, TplateauJeu jeu){
+    int indKing = NBCOORDPARCOURS-1;
+    int distance = indKing - indice;
+
+
+    if (distance <= unite->portee){
+        return 0;
+    }
+
+    for (int i = 1; i <= unite->vitessedeplacement; i++){
+
+        int targetId = indice + i;
+
+        if (targetId > NBCOORDPARCOURS-1) break;
+        if (distance-i <= unite->portee)
+        {
+            int x = chemin[targetId][0];
+            int y = chemin[targetId][1];
+
+            if ( x>= 0 && x < LARGEURJEU && y >= 0 && y < HAUTEURJEU){
+                if (jeu[chemin[indice+i][0]][chemin[indice+i][1]] == NULL){
+                    return i;
+                }
+            }
+        }
+    }
+    return 0;
+}
+
+void atkKing(Tunite * unite, int indice, TListePlayer playerKing){
+
+    float degats = unite->degats / unite->vitesseAttaque; //degats par seconde
+    // int vieKing = playerKing->pdata->pointsDeVie; //Le roi est forcement la tete
+
+    if (canDamageKing(unite, indice))
+    {
+        playerKing->pdata->pointsDeVie = playerKing->pdata->pointsDeVie - (int)degats;
+        // printf("Touché\n");
+    };
 }
 
 
