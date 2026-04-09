@@ -23,6 +23,30 @@ void initPlateauAvecNULL(TplateauJeu jeu,int largeur, int hauteur){
 }
 
 
+float **AlloueTab2DBis(int hauteur, int largeur){
+    float **tab = (float **)malloc(sizeof(float)*hauteur-1);
+
+    for (int i = 0; i < hauteur; i++){
+        tab[i] = (float *)malloc(sizeof(float)*largeur);
+    }
+
+    return tab;
+}
+
+
+void append(float **tab, float val, int NewTaille){
+
+    float *newTab = realloc(*tab, sizeof(float)*(NewTaille));
+
+    if (newTab != NULL){
+        newTab[NewTaille-1] = val;
+    }
+    
+    *tab = newTab;
+}
+
+
+
 /*
 void ecritCheminVersleHaut  : permet d'initilaiser le tab chemin de distance cases (avec des coord x y) dans une direction, ? partir d'un point x y donn?
 
@@ -183,7 +207,7 @@ Tunite *creeDragon(int posx, int posy){
     nouv->vitesseAttaque = 1.1;
     nouv->degats = 180;
     nouv->portee = 2;
-    nouv->vitessedeplacement = 2;
+    nouv->vitessedeplacement = 4;
     nouv->posX = posx;
     nouv->posY = posy;
     nouv->peutAttaquer = 1;
@@ -201,7 +225,7 @@ Tunite *creeArcher(int posx, int posy){
     nouv->vitesseAttaque = 0.75;
     nouv->degats = 110;
     nouv->portee = 2;
-    nouv->vitessedeplacement = 2;
+    nouv->vitessedeplacement = 5.5;
     nouv->posX = posx;
     nouv->posY = posy;
     nouv->peutAttaquer = 1;
@@ -219,7 +243,7 @@ Tunite *creeGargouille(int posx, int posy){
     nouv->vitesseAttaque = 0.60;
     nouv->degats = 80;
     nouv->portee = 1;
-    nouv->vitessedeplacement = 2;
+    nouv->vitessedeplacement = 3.5;
     nouv->posX = posx;
     nouv->posY = posy;
     nouv->peutAttaquer = 1;
@@ -334,7 +358,72 @@ void supprimerUnite(TListePlayer *player, Tunite *UniteDetruite, TplateauJeu jeu
 /*Ajoute simplement une unité a la fin de la liste d'un joueur
 Objectif: etre combiné à PositionnePlayerOnPlateau à chaque appel de boucle pour mettre à jour
 
+Ajouter l'indice de l'unité créée dans la liste des indices
 */
-void AjouterUnite(TListePlayer *player, Tunite *nouvelleUnite){
+void AjouterUnite(TListePlayer *player, Tunite *nouvelleUnite, float **posInd){
     *player = ajoutEnFin(*player, nouvelleUnite);
+    append(posInd, 0., getNbreCell(*player));
+}
+
+/*False = la case est libre
+  True = la case n'est pas libre
+*/
+bool verifCaseLibre(float ind, float* posInd, int taille){
+    bool verif = false;
+    int compteur = 0;
+
+    while (verif != true && compteur < taille)
+    {
+        if ((int)ind == (int)posInd[compteur]) verif = true;
+        else {
+            compteur++;
+        }
+    }
+    
+    return verif;
+}
+
+
+/*Recalcul les coordonées pour chaque unité pour une nouvelle boucle
+
+La vitesse de déplacement est stockée en float (pas pratique pour un tableau) donc il faudra utiliser avec une fonction pour determiner sa case correspondante à l'arrondi
+
+calculNewPosRaw renvoit seulement un tableau avec un indice en float (qui devrait etre arrondi lors du placement des troupes pour correspondre a une case)
+
+Ex : Dragon est en (0,0) et il a une vitesse de deplacement de 1.5 m/s 
+    - boucle 1 : PosInd [1.5] -> sera arrondi à 1 et donc placé case 1
+    - boucle 2 : PosInd [3] -> sera placé à la case 3 (aucune vitesse n'est perdue)
+
+Exception: Si 
+
+
+*/
+void calculNewInd(TListePlayer player, float *posInd){
+
+    TListePlayer tmp = player;
+    int taille = getNbreCell(player);
+    for (int i = 0; i < taille; i++){
+
+        float new_ind = posInd[i] + getptrData(tmp)->vitessedeplacement;
+        if (!verifCaseLibre(new_ind, posInd, taille)){
+            posInd[i] = new_ind;
+        }
+        else {
+            for( float j = new_ind-1; (int)j > (int)posInd[i]; j--){
+                if (!verifCaseLibre(j, posInd, taille)){
+                    posInd[i] = j;
+                }
+            }
+        }
+
+        tmp = getptrNextCell(tmp);
+    }
+}
+
+
+void print_list(float *l, int taille){
+    for (int i = 0; i < taille; i++){
+        printf("%f ; ", l[i]);
+    }
+    printf("\n");
 }

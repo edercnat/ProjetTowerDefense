@@ -43,7 +43,7 @@ typedef Tunite* ** TplateauJeu;  ////tableau a deux dimensions de largeur 11 et 
 
 
 
-
+void append(float** tab, float val, int NewTaille);
 
 
 TplateauJeu AlloueTab2D(int largeur, int hauteur);
@@ -76,8 +76,9 @@ Tunite *creeChevalier(int posx, int posy);
 
 
 void supprimerUnite(TListePlayer *player, Tunite *UniteDetruite, TplateauJeu jeu);
-void AjouterUnite(TListePlayer *player, Tunite *nouvelleUnite);
-
+void AjouterUnite(TListePlayer *player, Tunite *nouvelleUnite, float** posInd);
+void calculNewInd(TListePlayer player, float *posInd);
+void print_list(float *l, int taille);
 
 
 #endif // TOWERDEFEND_H_INCLUDED
