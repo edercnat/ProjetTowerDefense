@@ -7,12 +7,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <unistd.h>
 
 
 
 /*--------- Main ---------------------*/
 int main(int argc, char* argv[])
 {
+        srand( time (NULL) );
 //     SDL_Window *pWindow;
 //     SDL_Init(SDL_INIT_VIDEO);
 
@@ -49,7 +51,6 @@ int main(int argc, char* argv[])
 
         TplateauJeu jeu = AlloueTab2D(LARGEURJEU,HAUTEURJEU);
         initPlateauAvecNULL(jeu,LARGEURJEU,HAUTEURJEU);
-        affichePlateauConsole(jeu,LARGEURJEU,HAUTEURJEU);
 
         //Initialistaion du chemin
         int **chemin = initChemin();
@@ -58,21 +59,67 @@ int main(int argc, char* argv[])
         TListePlayer PlayerRoi, PlayerAtk;
         initListe(&PlayerRoi); initListe(&PlayerAtk);
 
+        float *posAtk = NULL;
+        float *posRoi = NULL;
 
+
+
+        
         //Ajout du roi
         Tunite *roi = creeTourRoi(chemin[(NBCOORDPARCOURS-1)][0], chemin[(NBCOORDPARCOURS-1)][1]); //Creation du roi positionné a la dernière case du chemin (ou premiere faudra verifier l'ordre du tableau)
-        PlayerRoi = ajoutEnTete(PlayerRoi, roi);
+        AjouterUnite(&PlayerRoi, roi, &posRoi);
 
 
+        while (!tourRoiDetruite(PlayerRoi))
+        {
+                int spawn = rand()%2;
 
-        //Test
-        PlayerRoi->pdata->pointsDeVie = 0;
-        bool etatRoi = tourRoiDetruite(PlayerAtk);
+                if (spawn == 0){
+                AjouterUnite(&PlayerAtk, randomUnite(chemin), &posAtk);
+                }
+                PositionnePlayerOnPlateau(PlayerAtk, jeu);
+                affichePlateauConsole(jeu, LARGEURJEU, HAUTEURJEU, chemin);
 
-        if (etatRoi) printf("La tour est detruite\n");
-        else if (!etatRoi) printf("La tour n'est pas détruite");
+                calculNewInd(PlayerAtk, posAtk);
+                updateCoord(PlayerAtk, posAtk, chemin, jeu);
+
+                sleep(1);
+                system("clear");
+        }
+        
 
 
+        // for( int i = 0; i < 7; i++){
+
+        //         AjouterUnite(&PlayerAtk, randomUnite(chemin), &posAtk);
+
+
+        //         print_list(posAtk, getNbreCell(PlayerAtk));
+        //         afficheListe(PlayerAtk);
+        //         printf("X : %d\n", drag->posX);
+        //         printf("Y : %d\n", drag->posY);
+
+
+        //         PositionnePlayerOnPlateau(PlayerAtk, jeu);
+        //         // affichePlateauConsole(jeu, LARGEURJEU, HAUTEURJEU);
+        //         calculNewInd(PlayerAtk, posAtk);
+        //         updateCoord(PlayerAtk, posAtk, chemin, jeu);
+        // }
+
+        // for (int i = 0; i < 10; i++)
+        // {       
+        //         print_list(posAtk, getNbreCell(PlayerAtk));
+        //         afficheListe(PlayerAtk);
+        //         printf("X : %d\n", drag->posX);
+        //         printf("Y : %d\n", drag->posY);
+
+        //         PositionnePlayerOnPlateau(PlayerAtk, jeu);
+        //         // affichePlateauConsole(jeu, LARGEURJEU, HAUTEURJEU);
+        //         calculNewInd(PlayerAtk, posAtk);
+        //         updateCoord(PlayerAtk, posAtk, chemin, jeu);
+        // }
+        
+        
 
 
         // prepareAllSpriteDuJeu(jeu,tabParcours,LARGEURJEU,HAUTEURJEU,TabSprite,pWinSurf);
@@ -97,7 +144,7 @@ int main(int argc, char* argv[])
         // boucle principale du jeu
         int cont = 1;
         int unique = 1;  //a supprimer c'est utiliser pour la d�mo de dessineAttaque
-        while ( cont != 0 ) {
+        //while ( cont != 0 ) {
                 //VOUS DEVEZ GERER (DETECTER) LA FIN DU JEU -> tourRoiDetruite
                 // SDL_PumpEvents(); //do events
                 // efface_fenetre(pWinSurf);
@@ -194,7 +241,7 @@ int main(int argc, char* argv[])
                         cont = 0;  //sortie de la boucle
                 }
                 */
-        }
+        //}
         //fin boucle du jeu
 
         //$$ Y'avait des free_surface de la sdl ici mais je crois qu'on aura pas besoin de libérer de "surface"

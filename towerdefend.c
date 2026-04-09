@@ -133,9 +133,21 @@ void freeChemin(int **tab){
     free(tab);
 }
 
-void affichePlateauConsole(TplateauJeu jeu, int largeur, int hauteur){
+void affichePlateauConsole(TplateauJeu jeu, int largeur, int hauteur, int **chemin){
     //pour un affichage sur la console, en relation avec enum TuniteDuJeu
     const char* InitialeUnite[7]={"s", "a", "r", "A", "C", "D", "G"};
+
+    bool chemin2D[hauteur][largeur];
+
+    for (int i = 0; i < hauteur; i++){
+        for (int j = 0; j < largeur; j++){
+            chemin2D[i][j] = false;
+        }
+    }
+
+    for (int i = 0; i < NBCOORDPARCOURS; i++){
+        chemin2D[chemin[i][1]][chemin[i][0]] = true;
+    }
 
     printf("\n");
     for (int j=0;j<hauteur;j++){
@@ -144,7 +156,12 @@ void affichePlateauConsole(TplateauJeu jeu, int largeur, int hauteur){
             if (jeu[i][j] != NULL){
                     printf("%s",InitialeUnite[jeu[i][j]->nom]);
             }
-            else printf(".");  //cad pas d'unit? sur cette case
+            else if (chemin2D[j][i] == true) {
+                printf(" ");
+            }
+            else {
+                printf(".");
+            };  //cad pas d'unit? sur cette case
         }
         printf("\n");
     }
@@ -320,7 +337,7 @@ void PositionnePlayerOnPlateau(TListePlayer player, TplateauJeu jeu){
 
     for (int i = 0; i < getNbreCell(player); i++){
         if (jeu[getptrData(tmp)->posX][getptrData(tmp)->posY] == NULL){
-            jeu[getptrData(tmp)->posX][getptrData(tmp)->posY] = getptrData(tmp); //case = adresse de l'unité
+            jeu[getptrData(tmp)->posX][getptrData(tmp)->posY] = tmp->pdata; //case = adresse de l'unité
         }
         else {printf("Erreur: positionnement %s ; case (%d, %d) déjà occupée par %s\n",
             nomUniteToString(getptrData(tmp)->nom), getptrData(tmp)->posX, getptrData(tmp)->posY, nomUniteToString((jeu[getptrData(tmp)->posX][getptrData(tmp)->posY])->nom));
@@ -394,6 +411,7 @@ Ex : Dragon est en (0,0) et il a une vitesse de deplacement de 1.5 m/s
     - boucle 1 : PosInd [1.5] -> sera arrondi à 1 et donc placé case 1
     - boucle 2 : PosInd [3] -> sera placé à la case 3 (aucune vitesse n'est perdue)
 
+    Penser à free
 */
 void calculNewInd(TListePlayer player, float *posInd){
 
@@ -402,6 +420,10 @@ void calculNewInd(TListePlayer player, float *posInd){
     for (int i = 0; i < taille; i++){
 
         float new_ind = posInd[i] + getptrData(tmp)->vitessedeplacement;
+        if (new_ind >= NBCOORDPARCOURS){
+            new_ind = NBCOORDPARCOURS-1;
+        }
+
         if (!verifCaseLibre(new_ind, posInd, taille)){
             posInd[i] = new_ind;
         }
@@ -418,9 +440,49 @@ void calculNewInd(TListePlayer player, float *posInd){
 }
 
 
+void updateCoord(TListePlayer player, float *posInd, int **chemin, TplateauJeu jeu){
 
+    TListePlayer tmp = player;
+    TListePlayer tmp2 = player;
 
+    for (int i = 0; i < getNbreCell(player); i++){
+        jeu[tmp2->pdata->posX][tmp2->pdata->posY] = NULL;
+        tmp2 = tmp2->suiv;
+    }
 
+    for (int i = 0; i < getNbreCell(player); i++){
+        tmp->pdata->posX = chemin[((int)posInd[i])][0];
+        tmp->pdata->posY = chemin[((int)posInd[i])][1];
+
+        tmp = tmp->suiv;
+    }
+}
+
+Tunite *randomUnite(int** chemin){
+
+    int result = rand()%4;
+
+    Tunite* unite;
+    switch (result)
+    {
+    case 0:
+        unite = creeArcher(chemin[0][0],chemin[0][1]);
+        break;
+    case 1: 
+        unite = creeGargouille(chemin[0][0],chemin[0][1]);
+        break;
+    case 2:
+        unite = creeDragon(chemin[0][0],chemin[0][1]);
+        break;
+    case 3:
+        unite = creeChevalier(chemin[0][0],chemin[0][1]);
+        break;
+    default:
+        break;
+    }
+
+    return unite;
+}
 
 
 void print_list(float *l, int taille){

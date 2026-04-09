@@ -52,7 +52,7 @@ int **initChemin();         //retourne le chemin emprunter par la horde, sous fo
 void freeChemin(int **tab);
 
 void initPlateauAvecNULL(TplateauJeu jeu,int largeur, int hauteur);
-void affichePlateauConsole(TplateauJeu jeu, int largeur, int hauteur);
+void affichePlateauConsole(TplateauJeu jeu, int largeur, int hauteur, int** chemin);
 
 Tunite *creeTourSol(int posx, int posy);
 Tunite *creeTourAir(int posx, int posy);
@@ -79,6 +79,8 @@ void supprimerUnite(TListePlayer *player, Tunite *UniteDetruite, TplateauJeu jeu
 void AjouterUnite(TListePlayer *player, Tunite *nouvelleUnite, float** posInd);
 void calculNewInd(TListePlayer player, float *posInd);
 void print_list(float *l, int taille);
+void updateCoord(TListePlayer player, float *posInd, int **chemin, TplateauJeu jeu);
+Tunite *randomUnite(int** chemin);
 
 
 #endif // TOWERDEFEND_H_INCLUDED
