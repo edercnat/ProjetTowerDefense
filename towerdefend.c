@@ -564,3 +564,52 @@ void print_list(float *l, int taille){
     }
     printf("\n");
 }
+
+//Fonction qui renvoie true si l'unité en paramètre est une unité de la horde (false sinon)
+bool isHordeUnite (Tunite *Unite){
+    TuniteDuJeu typeUnite = Unite->nom;
+    switch (typeUnite) {
+        case archer :
+            return true;
+        case gargouille :
+            return true;
+        case dragon :
+            return true;
+        case chevalier :
+            return true;
+        default : 
+            return false;
+    }
+}
+
+
+//fonction qui renvoie la liste des cibles disponibles pour l'unité en paramètre
+TListePlayer quiEstAPortee(TplateauJeu jeu, Tunite *UniteAttaquante){
+    //Initialisation de la liste de retour
+    TListePlayer listeUnitesAttaquables;
+    initListe(&listeUnitesAttaquables);
+
+    //On récupère les coordonnées de l'unité
+    int coordX = UniteAttaquante->posX;
+    int coordY = UniteAttaquante->posY;
+    int portee = UniteAttaquante->portee;
+
+    printf("je suis en (%d,%d) et je vérifie les cases : \n", coordX, coordY);
+    //On récupère les coordonnées incluses dans le tableau du jeu
+    for(int i = coordX - portee ; i < coordX + portee ; i++){
+        for(int j = coordY - portee ; j < coordY + portee ; j++){
+            //printf("i : %d, j = %d \n", i, j);
+            //Si on est bien dans l'enceinte du plateau de jeu
+            if(i >= 0 && i <= HAUTEURJEU - 1 && j >= 0 && j <= LARGEURJEU - 1){
+                
+                //si la case n'est pas vide on ajoute à la liste de retour
+                if(jeu[i][j] != NULL){
+                    printf("On attaque l'unite en %d %d \n", i, j);
+                    listeUnitesAttaquables = ajoutEnTete(listeUnitesAttaquables, jeu[i][j]);
+                }
+            }
+        }
+    }
+
+    return listeUnitesAttaquables;
+}

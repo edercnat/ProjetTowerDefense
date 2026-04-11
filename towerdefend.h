@@ -61,12 +61,10 @@ Tunite *creeTourRoi(int posx, int posy);
 /* fonctions du noyau que vous avez � coder */
 
 bool tourRoiDetruite(TListePlayer player); 
-void PositionnePlayerOnPlateau(TListePlayer player, TplateauJeu jeu);/*
+void PositionnePlayerOnPlateau(TListePlayer player, TplateauJeu jeu);
 
-TListePlayer quiEstAPortee(TplateauJeu jeu, Tunite *UniteAttaquante) ; //retourne la liste des cibles possibles
-Void combat(SDL_Surface *surface , Tunite * UniteAttaquante, Tunite * UniteCible);  //qui utilise dessineAttaque (de maSDL.h)
 
-*/
+
 Tunite *creeArcher(int posx, int posy);
 Tunite *creeGargouille(int posx, int posy);
 
@@ -74,9 +72,7 @@ Tunite *creeDragon(int posx, int posy);
 
 Tunite *creeChevalier(int posx, int posy);
 
-bool canDamageKing(Tunite *unite, int indice);
-int farestDist(Tunite *unite, int indice, int** chemin, TplateauJeu jeu);
-void atkKing(Tunite * unite, int indice, TListePlayer playerKing);
+
 
 void supprimerUnite(TListePlayer *player, Tunite *UniteDetruite, TplateauJeu jeu);
 void AjouterUnite(TListePlayer *player, Tunite *nouvelleUnite, float** posInd);
@@ -85,5 +81,13 @@ void print_list(float *l, int taille);
 void updateCoord(TListePlayer player, float *posInd, int **chemin, TplateauJeu jeu);
 Tunite *randomUnite(int** chemin);
 
+//Fonctions pour gérer les combats
+bool canDamageKing(Tunite *unite, int indice);
+int farestDist(Tunite *unite, int indice, int** chemin, TplateauJeu jeu);
+void atkKing(Tunite * unite, int indice, TListePlayer playerKing);
+TListePlayer quiEstAPortee(TplateauJeu jeu, Tunite *UniteAttaquante) ; //retourne la liste des cibles possibles
+bool isHordeUnite (Tunite *Unite);
+
+TListePlayer getCasesCheminPortee(Tunite *unite);
 
 #endif // TOWERDEFEND_H_INCLUDED

@@ -13,7 +13,6 @@ const char* nomUniteToString(TuniteDuJeu nom) {
         case tourSol:     return "Tour Sol";
         case tourAir:     return "Tour Air";
         case tourRoi:     return "Tour Roi";
-
         default:          return "Inconnu";
     }
 }
@@ -114,7 +113,7 @@ TListePlayer ajoutEnN(TListePlayer l, int pos, Tunite *data){
             nouv->suiv = tmp->suiv;
             tmp->suiv = nouv;
             return l;
-        }     
+        }
     }
 }
 
@@ -185,7 +184,6 @@ TListePlayer suppEnN(TListePlayer l, int pos){
     }
 
 }
-
 
 
 TListePlayer getptrFirstCell(TListePlayer l){
