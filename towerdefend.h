@@ -74,9 +74,9 @@ Tunite *creeDragon(int posx, int posy);
 
 Tunite *creeChevalier(int posx, int posy);
 
-bool canDamageKing(Tunite *unite, int indice);
+bool canDamageKing(Tunite *unite, int indice, int **chemin);
 int farestDist(Tunite *unite, int indice, int** chemin, TplateauJeu jeu);
-void atkKing(Tunite * unite, int indice, TListePlayer playerKing);
+void atkKing(Tunite * unite, int indice, TListePlayer playerKing, int **chemin);
 
 void supprimerUnite(TListePlayer *player, Tunite *UniteDetruite, TplateauJeu jeu);
 void AjouterUnite(TListePlayer *player, Tunite *nouvelleUnite, float** posInd);
