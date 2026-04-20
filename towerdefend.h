@@ -85,5 +85,7 @@ void print_list(float *l, int taille);
 void updateCoord(TListePlayer player, int **chemin, TplateauJeu jeu);
 Tunite *randomUnite(int** chemin);
 
+TListePlayer quiEstAPortee(TplateauJeu jeu, Tunite *UniteAttaquante);
+
 
 #endif // TOWERDEFEND_H_INCLUDED

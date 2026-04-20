@@ -607,3 +607,62 @@ void print_list(float *l, int taille){
     }
     printf("\n");
 }
+
+//Fonction qui renvoie true si l'unité en paramètre est une unité de la horde (false sino>
+bool isHordeUnite (Tunite *Unite){
+    TuniteDuJeu typeUnite = Unite->nom;
+    switch (typeUnite) {
+        case archer :
+            return true;
+        case gargouille :
+            return true;
+        case dragon :
+            return true;
+        case chevalier :
+            return true;
+        default :
+            return false;
+    }
+}
+
+//Fonction qui vérifie si la tour peut attaquer l'unité
+bool peutAttaquer(Tunite *tour, Tunite *unite){
+    return (isHordeUnite(unite) && (tour->cibleAttaquable == unite->maposition));
+}
+
+
+//fonction qui renvoie la liste des cibles disponibles pour l'unité en paramètre
+TListePlayer quiEstAPortee(TplateauJeu jeu, Tunite *UniteAttaquante){
+    //Initialisation de la liste de retour
+    TListePlayer listeUnitesAttaquables;
+    initListe(&listeUnitesAttaquables);
+
+    //Si c'est une unité de la horde
+    if(isHordeUnite(UniteAttaquante) && canDamageKing(UniteAttaquante, 0)){
+        //ajoutEnFin(listeUnitesAttaquables, roi);
+    }
+    //Sinon
+    else{
+        //On récupère les coordonnées de l'unité
+        int coordX = UniteAttaquante->posX;
+        int coordY = UniteAttaquante->posY;
+        int portee = UniteAttaquante->portee;
+
+        printf("je suis en (%d,%d) et je vérifie les cases : \n", coordX, coordY);
+        //On récupère les coordonnées incluses dans le tableau du jeu
+        for(int i = coordX - portee ; i < coordX + portee ; i++){
+            for(int j = coordY - portee ; j < coordY + portee ; j++){
+                //Si on est bien dans l'enceinte du plateau de jeu
+                if(i >= 0 && i <= HAUTEURJEU - 1 && j >= 0 && j <= LARGEURJEU - 1){
+                    //si la case n'est pas vide on ajoute à la liste de retour
+                    if(jeu[i][j] != NULL){
+                        if(peutAttaquer(UniteAttaquante, jeu[i][j])){
+                            ajoutEnFin(listeUnitesAttaquables, jeu[i][j]);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return listeUnitesAttaquables;
+}
