@@ -76,7 +76,6 @@ Tunite *creeChevalier(int posx, int posy);
 
 bool canDamageKing(Tunite *unite, int **chemin);
 int farestDist(Tunite *unite, int** chemin, TListePlayer playerAtk);
-void atkKing(Tunite * unite, TListePlayer playerKing, int **chemin);
 
 void supprimerUnite(TListePlayer *player, Tunite *UniteDetruite, TplateauJeu jeu);
 void AjouterUnite(TListePlayer *player, Tunite *nouvelleUnite);
@@ -85,7 +84,11 @@ void print_list(float *l, int taille);
 void updateCoord(TListePlayer player, int **chemin, TplateauJeu jeu);
 Tunite *randomUnite(int** chemin);
 
-TListePlayer quiEstAPortee(TplateauJeu jeu, Tunite *UniteAttaquante);
+TListePlayer quiEstAPortee(TplateauJeu jeu, Tunite *UniteAttaquante, int **chemin, Tunite *roi);
+void print_TlistePlayer(TListePlayer l);
+void triSelectionPv(TListePlayer listeUnites, bool (*fcomp)(Tunite *unite1, Tunite *unite2));
+bool moinsDePointsDeVies(Tunite *unite1, Tunite *unite2); 
 
+void combat(Tunite *UniteAttaquante, Tunite *UniteCible);
 
 #endif // TOWERDEFEND_H_INCLUDED

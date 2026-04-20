@@ -4,7 +4,7 @@
 #include "stdio.h"
 
 
-const char* nomUniteToString(TuniteDuJeu nom) {
+char* nomUniteToString(TuniteDuJeu nom) {
     switch (nom) {
         case gargouille:  return "Gargouille";
         case archer:      return "Archer";
@@ -228,4 +228,8 @@ int getNbreCell(TListePlayer l){
 }
 
 
-
+void swapPtrData(TListePlayer l1, TListePlayer l2){
+    Tunite *temp = l1 -> pdata;
+    l1 -> pdata = l2 -> pdata;
+    l2 -> pdata = temp;
+}

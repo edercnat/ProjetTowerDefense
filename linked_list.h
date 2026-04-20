@@ -13,7 +13,7 @@ typedef struct T_cell{
 } *TListePlayer;
 
 
-const char* nomUniteToString(TuniteDuJeu nom);
+char* nomUniteToString(TuniteDuJeu nom);
 void initListe(TListePlayer *l);
 void afficheListe(TListePlayer l);
 bool listeVide(TListePlayer l);
@@ -28,6 +28,7 @@ TListePlayer getptrNextCell(TListePlayer l);
 TListePlayer getptrLastCell(TListePlayer l);
 Tunite *getptrData(TListePlayer l);
 int getNbreCell(TListePlayer l);
+void swapPtrData(TListePlayer l1, TListePlayer l2);
 
 
 #endif

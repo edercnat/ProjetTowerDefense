@@ -303,7 +303,17 @@ Tunite *creeChevalier(int posx, int posy){
     return nouv;
 }
 
-
+//Fonction affichant une liste d'unités
+void print_TlistePlayer(TListePlayer l){
+    TListePlayer temp = l;
+    printf("[");
+    while(temp != NULL){
+        printf("%s",nomUniteToString((temp->pdata)->nom));
+        printf(", ");
+        temp = temp->suiv;
+    }
+    printf("] \n");
+}
 
 /*
 Cherche la cellule du roi et regarde si elle est détruite
@@ -588,17 +598,7 @@ int farestDist(Tunite *unite, int** chemin, TListePlayer playerAtk){
     return 0;
 }
 
-void atkKing(Tunite * unite, TListePlayer playerKing, int **chemin){
 
-    float degats = unite->degats / unite->vitesseAttaque; //degats par seconde
-    // int vieKing = playerKing->pdata->pointsDeVie; //Le roi est forcement la tete
-
-    if (canDamageKing(unite, chemin))
-    {
-        playerKing->pdata->pointsDeVie = playerKing->pdata->pointsDeVie - (int)degats;
-        // printf("Touché\n");
-    };
-}
 
 
 void print_list(float *l, int taille){
@@ -626,20 +626,20 @@ bool isHordeUnite (Tunite *Unite){
 }
 
 //Fonction qui vérifie si la tour peut attaquer l'unité
-bool peutAttaquer(Tunite *tour, Tunite *unite){
+bool peutAttaquerUnite(Tunite *tour, Tunite *unite){
     return (isHordeUnite(unite) && (tour->cibleAttaquable == unite->maposition));
 }
 
 
 //fonction qui renvoie la liste des cibles disponibles pour l'unité en paramètre
-TListePlayer quiEstAPortee(TplateauJeu jeu, Tunite *UniteAttaquante){
+TListePlayer quiEstAPortee(TplateauJeu jeu, Tunite *UniteAttaquante, int** chemin, Tunite *roi){
     //Initialisation de la liste de retour
     TListePlayer listeUnitesAttaquables;
     initListe(&listeUnitesAttaquables);
 
     //Si c'est une unité de la horde
-    if(isHordeUnite(UniteAttaquante) && canDamageKing(UniteAttaquante, 0)){
-        //ajoutEnFin(listeUnitesAttaquables, roi);
+    if(isHordeUnite(UniteAttaquante) && canDamageKing(UniteAttaquante, chemin)){
+        ajoutEnFin(listeUnitesAttaquables, roi);
     }
     //Sinon
     else{
@@ -656,8 +656,8 @@ TListePlayer quiEstAPortee(TplateauJeu jeu, Tunite *UniteAttaquante){
                 if(i >= 0 && i <= HAUTEURJEU - 1 && j >= 0 && j <= LARGEURJEU - 1){
                     //si la case n'est pas vide on ajoute à la liste de retour
                     if(jeu[i][j] != NULL){
-                        if(peutAttaquer(UniteAttaquante, jeu[i][j])){
-                            ajoutEnFin(listeUnitesAttaquables, jeu[i][j]);
+                        if(peutAttaquerUnite(UniteAttaquante, jeu[i][j])){
+                            listeUnitesAttaquables = ajoutEnFin(listeUnitesAttaquables, jeu[i][j]);
                         }
                     }
                 }
@@ -667,4 +667,41 @@ TListePlayer quiEstAPortee(TplateauJeu jeu, Tunite *UniteAttaquante){
     return listeUnitesAttaquables;
 }
 
-//bool plusDePointsDeVies()
+
+//Renvoie true si la première unité a moins de points de vie que la deuxième unité
+bool moinsDePointsDeVies(Tunite *unite1, Tunite *unite2){
+    return unite1->pointsDeVie < unite2->pointsDeVie;
+}
+
+void triSelectionPv(TListePlayer listeUnites, bool (*fcomp)(Tunite *unite1, Tunite *unite2)){
+    //On parcours la liste chaînée 
+    for(TListePlayer debutUnsorted = listeUnites ; debutUnsorted != NULL ; debutUnsorted = debutUnsorted->suiv){
+        TListePlayer min = debutUnsorted;
+        for(TListePlayer parcours = debutUnsorted; parcours != NULL ; parcours = parcours->suiv){
+            if(fcomp(parcours->pdata, min->pdata)){
+                min = parcours;
+            }
+        }
+        swapPtrData(min, debutUnsorted);
+    }
+}
+
+//FOnction gérant le combat
+void combat(Tunite *UniteAttaquante, Tunite *UniteCible){
+    float degats = UniteAttaquante->degats / UniteAttaquante->vitesseAttaque;//degats par seconde
+    UniteCible->pointsDeVie = UniteCible->pointsDeVie - degats; 
+}
+
+void attaquePlayer(TplateauJeu jeu, int** chemin, Tunite *roi, TListePlayer j){
+    TListePlayer joueur = j;
+
+    //Parcours de la liste
+    while(joueur != NULL){
+        //Cibles de l'unité
+        TListePlayer ciblesJoueur = quiEstAPortee()
+    }
+    
+}
+
+
+
