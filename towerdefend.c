@@ -666,3 +666,5 @@ TListePlayer quiEstAPortee(TplateauJeu jeu, Tunite *UniteAttaquante){
     }
     return listeUnitesAttaquables;
 }
+
+//bool plusDePointsDeVies()
