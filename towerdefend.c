@@ -424,13 +424,12 @@ bool verifCaseLibre(float ind, TListePlayer listeAtk, Tunite *uniteIgnoree){
 
 La vitesse de déplacement est stockée en float (pas pratique pour un tableau) donc il faudra utiliser avec une fonction pour determiner sa case correspondante à l'arrondi
 
-calculNewPosRaw renvoit seulement un tableau avec un indice en float (qui devrait etre arrondi lors du placement des troupes pour correspondre a une case)
+calculNewPos met a jour le champ indChemin avec un indice en float (qui devrait etre arrondi lors du placement des troupes pour correspondre a une case)
 
 Ex : Dragon est en (0,0) et il a une vitesse de deplacement de 1.5 m/s
     - boucle 1 : PosInd [1.5] -> sera arrondi à 1 et donc placé case 1
     - boucle 2 : PosInd [3] -> sera placé à la case 3 (aucune vitesse n'est perdue)
 
-    Penser à free à la fin de la boucle de jeu
 */
 void calculNewInd(TListePlayer player, int **chemin){
 
