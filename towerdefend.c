@@ -403,16 +403,17 @@ void AjouterUnite(TListePlayer *player, Tunite *nouvelleUnite){
 /*False = la case est libre
   True = la case n'est pas libre
 */
-bool verifCaseLibre(float ind, TListePlayer listeAtk){
+bool verifCaseLibre(float ind, TListePlayer listeAtk, Tunite *uniteIgnoree){
     bool verif = false;
     TListePlayer temp = listeAtk;
 
     while (verif != true && temp != NULL)
     {
-        if ((int)ind == temp->pdata->indChemin) verif = true;
-        else {
-            temp = temp->suiv;
+        if (temp->pdata != uniteIgnoree){
+            if ((int)ind == (int)temp->pdata->indChemin) verif = true;
         }
+
+        temp = temp->suiv;
     }
 
     return verif;
@@ -444,14 +445,14 @@ void calculNewInd(TListePlayer player, int **chemin){
         if (!canDamageKing(tmp->pdata, chemin) && (indKing - new_ind) >= tmp->pdata->portee ){
             //Si je ne peux pas encore frapper le Roi et que ma future position est encore trop loin de ma portée, alors j'avance
 
-            if (!verifCaseLibre(new_ind, player)){
+            if (!verifCaseLibre(new_ind, player, tmp->pdata)){
                 //Si la case à distance (vitessedeplacement) est libre on se deplace
                 tmp->pdata->indChemin = new_ind;
             }
             else {
                 for( float j = new_ind-1; (int)j > (int)tmp->pdata->indChemin; j--){
                     //Sinon on traque toutes les cases avant (de la plus loin a la plus proche) pour trouver ou se mettre
-                    if (!verifCaseLibre(j, player) && j <= indKing){
+                    if (!verifCaseLibre(j, player, tmp->pdata) && j <= indKing){
                         tmp->pdata->indChemin = j;
                         break;
                     }
@@ -465,7 +466,7 @@ void calculNewInd(TListePlayer player, int **chemin){
 
             if (farestDist(tmp->pdata, chemin, player) == 0 ){ //Cela veut dire qu'aucune case à portée n'est disponible
                 for( float j = new_ind-1; (int)j > (int)tmp->pdata->indChemin; j--){ //Alors on traque la plus proche du roi disponible qui ne sera pas a sa portée
-                    if (!verifCaseLibre(j, player) && j < indKing){
+                    if (!verifCaseLibre(j, player, tmp->pdata) && j < indKing){
                         tmp->pdata->indChemin = j;
                         break;
                     }
@@ -579,7 +580,7 @@ int farestDist(Tunite *unite, int** chemin, TListePlayer playerAtk){
             int y = chemin[targetId][1];
 
             if ( x>= 0 && x < LARGEURJEU && y >= 0 && y < HAUTEURJEU){
-                if (!verifCaseLibre(targetId, playerAtk)){
+                if (!verifCaseLibre(targetId, playerAtk, unite)){
                     return i;
                 }
             }
