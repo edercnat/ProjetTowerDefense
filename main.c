@@ -11,7 +11,7 @@
 
 
 
-/*--------- Main ---------------------*/
+/*--------- Main ----------------------*/
 int main(int argc, char* argv[])
 {
         srand( time (NULL) );
@@ -59,39 +59,39 @@ int main(int argc, char* argv[])
         TListePlayer PlayerRoi, PlayerAtk;
         initListe(&PlayerRoi); initListe(&PlayerAtk);
 
-        float *posAtk = NULL;
-        float *posRoi = NULL;
 
 
 
-        
         //Ajout du roi
         Tunite *roi = creeTourRoi(chemin[(NBCOORDPARCOURS-1)][0], chemin[(NBCOORDPARCOURS-1)][1]); //Creation du roi positionné a la dernière case du chemin (ou premiere faudra verifier l'ordre du tableau)
-        AjouterUnite(&PlayerRoi, roi, &posRoi);
+        AjouterUnite(&PlayerRoi, roi);
         PositionnePlayerOnPlateau(PlayerRoi, jeu);
+        affichePlateauConsole(jeu, LARGEURJEU, HAUTEURJEU, chemin);
+
         // AjouterUnite(&PlayerAtk, randomUnite(chemin), &posAtk);
         // calculNewInd(PlayerAtk, posAtk, chemin, jeu);
         // updateCoord(PlayerAtk, posAtk, chemin, jeu);
         while (!tourRoiDetruite(PlayerRoi))
         {
+                calculNewInd(PlayerAtk, chemin);
+                updateCoord(PlayerAtk, chemin, jeu);
                 int spawn = rand()%2; //random pour faire apparaitre une unité
 
                 if (spawn == 0){
-                AjouterUnite(&PlayerAtk, randomUnite(chemin), &posAtk);
+                AjouterUnite(&PlayerAtk, randomUnite(chemin));
                 }
                 PositionnePlayerOnPlateau(PlayerAtk, jeu);
                 affichePlateauConsole(jeu, LARGEURJEU, HAUTEURJEU, chemin);
 
-                calculNewInd(PlayerAtk, posAtk, chemin, jeu);
-                updateCoord(PlayerAtk, posAtk, chemin, jeu);
+
 
                 //Attaque sur le Roi
 
                 TListePlayer tmp = PlayerAtk;
                 int compteur = 0;
                 for (int i = 0; i < getNbreCell(PlayerAtk); i++){
-                        atkKing(tmp->pdata, (int)posAtk[i], PlayerRoi);
-                        if (canDamageKing(tmp->pdata, (int)posAtk[i])){
+                        atkKing(tmp->pdata, PlayerRoi, chemin);
+                        if (canDamageKing(tmp->pdata, chemin)){
                                 compteur++;
                         }
                         if (tourRoiDetruite(PlayerRoi)){
@@ -111,7 +111,7 @@ int main(int argc, char* argv[])
                         system("clear");
                 }
         }
-        
+
 
 
         // for( int i = 0; i < 7; i++){
@@ -132,7 +132,7 @@ int main(int argc, char* argv[])
         // }
 
         // for (int i = 0; i < 10; i++)
-        // {       
+        // {
         //         print_list(posAtk, getNbreCell(PlayerAtk));
         //         afficheListe(PlayerAtk);
         //         printf("X : %d\n", drag->posX);
@@ -143,8 +143,8 @@ int main(int argc, char* argv[])
         //         calculNewInd(PlayerAtk, posAtk);
         //         updateCoord(PlayerAtk, posAtk, chemin, jeu);
         // }
-        
-        
+
+
 
 
         // prepareAllSpriteDuJeu(jeu,tabParcours,LARGEURJEU,HAUTEURJEU,TabSprite,pWinSurf);

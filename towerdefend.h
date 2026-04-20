@@ -31,7 +31,7 @@ typedef struct {
                             //seule fois par tour ;
                             //0 = a d�j� attaqu�, 1 = peut attaquer ce tour-ci
                             // � remettre � 1 au d�but de chaque tour
-
+    float indChemin;
     //struct Tunite *cible;   //NULL si pas de cible. mettre � jour ce pointeur permet l'aninamtion (simpliste certe) du tir
     //non utilis� au final -> utiliser directement dessineAttaque
 
@@ -60,7 +60,7 @@ Tunite *creeTourRoi(int posx, int posy);
 
 /* fonctions du noyau que vous avez � coder */
 
-bool tourRoiDetruite(TListePlayer player); 
+bool tourRoiDetruite(TListePlayer player);
 void PositionnePlayerOnPlateau(TListePlayer player, TplateauJeu jeu);/*
 
 TListePlayer quiEstAPortee(TplateauJeu jeu, Tunite *UniteAttaquante) ; //retourne la liste des cibles possibles
@@ -74,15 +74,15 @@ Tunite *creeDragon(int posx, int posy);
 
 Tunite *creeChevalier(int posx, int posy);
 
-bool canDamageKing(Tunite *unite, int indice, int **chemin);
-int farestDist(Tunite *unite, int indice, int** chemin, TplateauJeu jeu);
-void atkKing(Tunite * unite, int indice, TListePlayer playerKing, int **chemin);
+bool canDamageKing(Tunite *unite, int **chemin);
+int farestDist(Tunite *unite, int** chemin, TListePlayer playerAtk);
+void atkKing(Tunite * unite, TListePlayer playerKing, int **chemin);
 
 void supprimerUnite(TListePlayer *player, Tunite *UniteDetruite, TplateauJeu jeu);
-void AjouterUnite(TListePlayer *player, Tunite *nouvelleUnite, float** posInd);
-void calculNewInd(TListePlayer player, float *posInd, int** chemin, TplateauJeu jeu);
+void AjouterUnite(TListePlayer *player, Tunite *nouvelleUnite);
+void calculNewInd(TListePlayer player, int** chemin);
 void print_list(float *l, int taille);
-void updateCoord(TListePlayer player, float *posInd, int **chemin, TplateauJeu jeu);
+void updateCoord(TListePlayer player, int **chemin, TplateauJeu jeu);
 Tunite *randomUnite(int** chemin);
 
 
