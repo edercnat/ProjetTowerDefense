@@ -91,7 +91,7 @@ int main(int argc, char* argv[])
                 
                 testtest = quiEstAPortee(jeu, tour, chemin, roi);
                 print_TlistePlayer(testtest);
-                triSelectionPv(testtest,moinsDePointsDeVies);
+                triSelectionFcomp(testtest,moinsDePointsDeVies);
                 print_TlistePlayer(testtest);
 
 

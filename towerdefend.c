@@ -5,6 +5,13 @@
 #include "linked_list.h"
 
 
+
+//-------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
+//--------------------------------FONCTIONS D'INITIALISATION---------------------------------------
+//-------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
+
 //typedef Tunite* ** TplateauJeu;
 
 TplateauJeu AlloueTab2D(int largeur, int hauteur){
@@ -35,16 +42,18 @@ float **AlloueTab2DBis(int hauteur, int largeur){
 }
 
 
-void append(float **tab, float val, int NewTaille){
+//à supprimer ?
 
-    float *newTab = realloc(*tab, sizeof(float)*(NewTaille));
+// void append(float **tab, float val, int NewTaille){
 
-    if (newTab != NULL){
-        newTab[NewTaille-1] = val;
-    }
+//     float *newTab = realloc(*tab, sizeof(float)*(NewTaille));
 
-    *tab = newTab;
-}
+//     if (newTab != NULL){
+//         newTab[NewTaille-1] = val;
+//     }
+
+//     *tab = newTab;
+// }
 
 
 
@@ -120,13 +129,6 @@ int **initChemin(){
     return chemin;  //tab2D contenant des pointeurs
 }
 
-void afficheCoordonneesParcours(int **chemin, int nbcoord){
-    printf("Liste coordonnees: ");
-    for (int i=0; i<nbcoord; i++){
-        printf("(%d, %d)",chemin[i][X], chemin[i][Y]);
-    }
-    printf("\nfin liste coordonn?es\n");
-}
 
 void freeChemin(int **tab){
     for (int j=0;j<NBCOORDPARCOURS;j++){
@@ -134,6 +136,15 @@ void freeChemin(int **tab){
     }
     free(tab);
 }
+
+
+
+//-------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
+//--------------------------------FONCTIONS D'AFFICHAGE--------------------------------------------
+//-------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
+
 
 void affichePlateauConsole(TplateauJeu jeu, int largeur, int hauteur, int **chemin){
     //pour un affichage sur la console, en relation avec enum TuniteDuJeu
@@ -169,6 +180,40 @@ void affichePlateauConsole(TplateauJeu jeu, int largeur, int hauteur, int **chem
     }
     printf("\n");
 }
+
+void afficheCoordonneesParcours(int **chemin, int nbcoord){
+    printf("Liste coordonnees: ");
+    for (int i=0; i<nbcoord; i++){
+        printf("(%d, %d)",chemin[i][X], chemin[i][Y]);
+    }
+    printf("\nfin liste coordonn?es\n");
+}
+
+//Fonction affichant une liste d'unités
+void print_TlistePlayer(TListePlayer l){
+    TListePlayer temp = l;
+    printf("[");
+    while(temp != NULL){
+        printf("%s",nomUniteToString((temp->pdata)->nom));
+        printf(", ");
+        temp = temp->suiv;
+    }
+    printf("] \n");
+}
+
+//à Supprimer ?
+// void print_list(float *l, int taille){
+//     for (int i = 0; i < taille; i++){
+//         printf("%f ; ", l[i]);
+//     }
+//     printf("\n");
+// }
+
+//-------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
+//--------------------------------FONCTIONS CREATION D'UNITES--------------------------------------
+//-------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
 
 Tunite *creeTourSol(int posx, int posy){
     Tunite *nouv = (Tunite*)malloc(sizeof(Tunite));
@@ -303,17 +348,7 @@ Tunite *creeChevalier(int posx, int posy){
     return nouv;
 }
 
-//Fonction affichant une liste d'unités
-void print_TlistePlayer(TListePlayer l){
-    TListePlayer temp = l;
-    printf("[");
-    while(temp != NULL){
-        printf("%s",nomUniteToString((temp->pdata)->nom));
-        printf(", ");
-        temp = temp->suiv;
-    }
-    printf("] \n");
-}
+
 
 /*
 Cherche la cellule du roi et regarde si elle est détruite
@@ -601,14 +636,12 @@ int farestDist(Tunite *unite, int** chemin, TListePlayer playerAtk){
 
 
 
-void print_list(float *l, int taille){
-    for (int i = 0; i < taille; i++){
-        printf("%f ; ", l[i]);
-    }
-    printf("\n");
-}
 
-//Fonction qui renvoie true si l'unité en paramètre est une unité de la horde (false sino>
+
+//Fonction qui teste si l'unité en paramètre est une unité de la horde
+//  return bool :
+// true  -> l'unité est une unité de la horde
+// false -> l'unité est une unité du roi
 bool isHordeUnite (Tunite *Unite){
     TuniteDuJeu typeUnite = Unite->nom;
     switch (typeUnite) {
@@ -625,30 +658,36 @@ bool isHordeUnite (Tunite *Unite){
     }
 }
 
-//Fonction qui vérifie si la tour peut attaquer l'unité
+//Fonction qui teste si l'unité tour peut attaquer l'unité unite 
+//(en fonction des positions)
+//  return bool :
+// true  -> la tour peut l'attaquer
+// false -> la tour ne peut pas l'attaquer
 bool peutAttaquerUnite(Tunite *tour, Tunite *unite){
     return (isHordeUnite(unite) && (tour->cibleAttaquable == unite->maposition));
 }
 
 
-//fonction qui renvoie la liste des cibles disponibles pour l'unité en paramètre
+//Fonction qui renvoie la liste des cibles attaquables par l'unité en paramètre
+//(Donc les unités à la bonne portée et qui ne sont pas du même camp)
+//  return TListePlayer
 TListePlayer quiEstAPortee(TplateauJeu jeu, Tunite *UniteAttaquante, int** chemin, Tunite *roi){
     //Initialisation de la liste de retour
     TListePlayer listeUnitesAttaquables;
     initListe(&listeUnitesAttaquables);
 
-    //Si c'est une unité de la horde
+    //Si c'est une unité de la horde elle ne peut que attaquer le roi
     if(isHordeUnite(UniteAttaquante) && canDamageKing(UniteAttaquante, chemin)){
         ajoutEnFin(listeUnitesAttaquables, roi);
     }
-    //Sinon
+    //Sinon c'est une tour
     else{
         //On récupère les coordonnées de l'unité
         int coordX = UniteAttaquante->posX;
         int coordY = UniteAttaquante->posY;
         int portee = UniteAttaquante->portee;
 
-        printf("je suis en (%d,%d) et je vérifie les cases : \n", coordX, coordY);
+        //printf("je suis en (%d,%d) et je vérifie les cases : \n", coordX, coordY);
         //On récupère les coordonnées incluses dans le tableau du jeu
         for(int i = coordX - portee ; i < coordX + portee ; i++){
             for(int j = coordY - portee ; j < coordY + portee ; j++){
@@ -668,15 +707,20 @@ TListePlayer quiEstAPortee(TplateauJeu jeu, Tunite *UniteAttaquante, int** chemi
 }
 
 
-//Renvoie true si la première unité a moins de points de vie que la deuxième unité
+//Fonction de comparaison des points de vies des unités
+//  return bool :
+// true  -> unite1 a moins de points de vies que unite2
+// false -> l'inverse
 bool moinsDePointsDeVies(Tunite *unite1, Tunite *unite2){
     return unite1->pointsDeVie < unite2->pointsDeVie;
 }
 
-void triSelectionPv(TListePlayer listeUnites, bool (*fcomp)(Tunite *unite1, Tunite *unite2)){
-    //On parcours la liste chaînée 
+//Fonction qui trie une liste TListePlayer de manière croissante avec une fonction de comparaison en paramètre
+void triSelectionFcomp(TListePlayer listeUnites, bool (*fcomp)(Tunite *unite1, Tunite *unite2)){
+    //On parcourt la liste chaînée 
     for(TListePlayer debutUnsorted = listeUnites ; debutUnsorted != NULL ; debutUnsorted = debutUnsorted->suiv){
         TListePlayer min = debutUnsorted;
+        //On parcourt la partie non triée
         for(TListePlayer parcours = debutUnsorted; parcours != NULL ; parcours = parcours->suiv){
             if(fcomp(parcours->pdata, min->pdata)){
                 min = parcours;
@@ -686,12 +730,13 @@ void triSelectionPv(TListePlayer listeUnites, bool (*fcomp)(Tunite *unite1, Tuni
     }
 }
 
-//FOnction gérant le combat
+//Fonction qui gère l'attaque d'une UniteAttaquante sur une UniteCible
 void combat(Tunite *UniteAttaquante, Tunite *UniteCible){
     float degats = UniteAttaquante->degats / UniteAttaquante->vitesseAttaque;//degats par seconde
     UniteCible->pointsDeVie = UniteCible->pointsDeVie - degats; 
 }
 
+//Fonction qui gère un cycle d'attaque pour un joueur passé en paramètre
 void attaquePlayer(TplateauJeu jeu, int** chemin, Tunite *roi, TListePlayer j){
     TListePlayer joueur = j;
 

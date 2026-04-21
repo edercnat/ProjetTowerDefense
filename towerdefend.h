@@ -86,7 +86,7 @@ Tunite *randomUnite(int** chemin);
 
 TListePlayer quiEstAPortee(TplateauJeu jeu, Tunite *UniteAttaquante, int **chemin, Tunite *roi);
 void print_TlistePlayer(TListePlayer l);
-void triSelectionPv(TListePlayer listeUnites, bool (*fcomp)(Tunite *unite1, Tunite *unite2));
+void triSelectionFcomp(TListePlayer listeUnites, bool (*fcomp)(Tunite *unite1, Tunite *unite2));
 bool moinsDePointsDeVies(Tunite *unite1, Tunite *unite2); 
 
 void combat(Tunite *UniteAttaquante, Tunite *UniteCible);
