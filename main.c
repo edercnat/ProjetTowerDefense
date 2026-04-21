@@ -49,12 +49,11 @@ int main(int argc, char* argv[])
         //-------------------------------------------------------------------------------------------------------------------------------
         //Pour la tour random
         Tunite *tour = creeTourAir(3,3);
-
+        Tunite *tour1 = creeTourSol(5,3);
         AjouterUnite(&PlayerRoi, tour);
+        AjouterUnite(&PlayerRoi, tour1);
 
-        //Ajout tour test
         
-        TListePlayer testtest;
 
 
         //-------------------------------------------------------------------------------------------------------------------------------
@@ -88,44 +87,18 @@ int main(int argc, char* argv[])
                 PositionnePlayerOnPlateau(PlayerHorde, jeu);
 
                 //Gestion des attaques de toutes les unités
-                // attaquePlayer(jeu, chemin, roi, PlayerRoi);
-                // attaquePlayer(jeu, chemin, roi, PlayerHorde);
-                //Parcours de la liste
-                TListePlayer ciblesJoueur;
-                TListePlayer joueur = PlayerRoi;
-                while(joueur != NULL){
-                        //On récupère les cibles de l'unité et on trie la liste
-                        ciblesJoueur = quiEstAPortee(jeu, joueur->pdata, chemin, roi);
-                        if(ciblesJoueur != NULL){
-                                triSelectionFcomp(ciblesJoueur, moinsDePointsDeVies);
-                                combat(joueur->pdata, ciblesJoueur->pdata);
-                        }
-
-                        //On passe à l'unité suivante
-                        joueur = joueur->suiv;
-                }
-                supprimerUnite(&PlayerHorde, jeu);
-
+                attaquePlayer(jeu, chemin, &roi, PlayerHorde);
+                attaquePlayer(jeu, chemin, &roi, PlayerRoi);
+                
+                print_TlistePlayer(PlayerHorde);
+                
+                
 
                 //Supprime les unités mortes
-                // supprimerUnite(&PlayerRoi, jeu);
-                // supprimerUnite(&PlayerHorde, jeu);
+                supprimerUnite(&PlayerHorde, jeu);
+                
 
 
-                // //Attaque sur le Roi
-                // TListePlayer tmp = PlayerHorde;
-                // int compteur = 0;
-                // for (int i = 0; i < getNbreCell(PlayerHorde); i++){
-                //         atkKing(tmp->pdata, PlayerRoi, chemin);
-                //         if (canDamageKing(tmp->pdata, chemin)){
-                //                 compteur++;
-                //         }
-                //         if (tourRoiDetruite(PlayerRoi)){
-                //                 printf("Le Roi est mort !\n\n");
-                //                 break;
-                //         }
-                //         tmp = tmp->suiv;
-                // }
 
 
                 //Affichage du plateau
@@ -141,7 +114,7 @@ int main(int argc, char* argv[])
                 }
         }
 
-
+        affichePlateauConsole(jeu, LARGEURJEU, HAUTEURJEU, chemin);
         freeChemin(tabParcours);
         return 0;
 

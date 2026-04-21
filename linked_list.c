@@ -158,32 +158,32 @@ TListePlayer suppEnTete(TListePlayer l){
 
 TListePlayer suppEnN(TListePlayer l, int pos){
 
-    if (listeVide(l)) {return NULL;}
-    else if (l->suiv == NULL && pos > 0) {printf("Erreur : Indice %d trop élevé\n", pos); return l;}
-    else if (pos == 0) {return suppEnTete(l);};
-
-    TListePlayer tmp = l;
-    int compteur = 0;
-
-    while (tmp->suiv->suiv != NULL && compteur < pos-1)
-    {
-        tmp = tmp->suiv;
-        compteur++;
+    if(listeVide(l)){
+        return NULL;
     }
-    
-    if (compteur < pos-1) {printf("Erreur : Indice %d trop élevé\n", pos); return l;}
-
-    else {
-
-        struct T_cell *tmp2 = tmp->suiv;
-        tmp->suiv = tmp->suiv->suiv;
-        
-        free(tmp2->pdata);
-        free(tmp2);
-
-        return l;
+    else if(pos == 0){
+        return suppEnTete(l);
     }
-
+    else{
+        int compteur = 0;
+        TListePlayer prec;
+        TListePlayer temp = l->suiv;
+        while(compteur < pos && temp != NULL){
+            compteur++;
+            prec = temp;
+            temp = temp->suiv;
+        }
+        if(compteur < pos){
+            printf("Erreur suppEnN, l'indice est trop élevé\n");
+        }
+        else{
+            prec->suiv = temp->suiv;
+            //On libère la mémoire
+            free(temp->pdata);
+            free(temp);
+        }
+    }
+    return l;
 }
 
 

@@ -159,7 +159,7 @@ void affichePlateauConsole(TplateauJeu jeu, int largeur, int hauteur, int **chem
             }
             else {
                 printf(".");
-            };  //cad pas d'unit? sur cette case
+            };  //cad pas d'unite sur cette case
         }
         printf("\n");
     }
@@ -640,14 +640,14 @@ bool peutAttaquerUnite(Tunite *tour, Tunite *unite){
 //Fonction qui renvoie la liste des cibles attaquables par l'unité en paramètre
 //(Donc les unités à la bonne portée et qui ne sont pas du même camp)
 //  return TListePlayer
-TListePlayer quiEstAPortee(TplateauJeu jeu, Tunite *UniteAttaquante, int** chemin, Tunite *roi){
+TListePlayer quiEstAPortee(TplateauJeu jeu, Tunite *UniteAttaquante, int** chemin, Tunite **roi){
     //Initialisation de la liste de retour
     TListePlayer listeUnitesAttaquables;
     initListe(&listeUnitesAttaquables);
 
     //Si c'est une unité de la horde elle ne peut que attaquer le roi
     if(isHordeUnite(UniteAttaquante) && canDamageKing(UniteAttaquante, chemin)){
-        ajoutEnFin(listeUnitesAttaquables, roi);
+        listeUnitesAttaquables = ajoutEnFin(listeUnitesAttaquables, *roi);
     }
     //Sinon c'est une tour
     else{
@@ -658,10 +658,10 @@ TListePlayer quiEstAPortee(TplateauJeu jeu, Tunite *UniteAttaquante, int** chemi
 
         //printf("je suis en (%d,%d) et je vérifie les cases : \n", coordX, coordY);
         //On récupère les coordonnées incluses dans le tableau du jeu
-        for(int i = coordX - portee ; i < coordX + portee ; i++){
-            for(int j = coordY - portee ; j < coordY + portee ; j++){
+        for(int i = coordX - portee ; i <= coordX + portee ; i++){
+            for(int j = coordY - portee ; j <= coordY + portee ; j++){
                 //Si on est bien dans l'enceinte du plateau de jeu
-                if(i >= 0 && i <= HAUTEURJEU - 1 && j >= 0 && j <= LARGEURJEU - 1){
+                if(i >= 0 && i <= LARGEURJEU - 1 && j >= 0 && j <= HAUTEURJEU - 1){
                     //si la case n'est pas vide on ajoute à la liste de retour
                     if(jeu[i][j] != NULL){
                         if(peutAttaquerUnite(UniteAttaquante, jeu[i][j])){
@@ -701,7 +701,6 @@ void triSelectionFcomp(TListePlayer listeUnites, bool (*fcomp)(Tunite *unite1, T
 
 //Fonction qui gère l'attaque d'une UniteAttaquante sur une UniteCible
 void combat(Tunite *UniteAttaquante, Tunite *UniteCible){
-    printf("%d", UniteCible->pointsDeVie);
     float degats = UniteAttaquante->degats / UniteAttaquante->vitesseAttaque;//degats par seconde
     UniteCible->pointsDeVie = UniteCible->pointsDeVie - degats; 
 }
@@ -716,56 +715,64 @@ bool estMort(Tunite *unite){
 /*
 Fonction qui vérifie si les unités de la horde sont mortes et les supprime
 */
-void supprimerUnite(TListePlayer *player, TplateauJeu jeu, int **chemin){
+void supprimerUnite(TListePlayer *player, TplateauJeu jeu){
     if(*player != NULL){
-        TListePlayer tmp = *player;
-        int compteur = 0;
+        //On copie le pointeur sur la liste
+        TListePlayer *current = player;
+        //Variable qui permet de garder en mémoire le truc à supprimer
+        TListePlayer temp;
 
-        while (tmp->suiv != NULL)
+        //int compteur = 0;
+
+        while (*current != NULL)
         {
+            temp = *current;
             //Si l'unité est morte
-            if(estMort(tmp->pdata)){
-                printf("Il est mort \n");
+            if(estMort(temp->pdata)){
                 //On supprime le pointeur dans la case du jeu
-                jeu[(tmp->pdata)->posX][(tmp->pdata)->posY] = NULL;
-                chemin()
-                //supprimer du chemin également
-                //tmp = suppEnN(tmp, compteur);
-            }
+                jeu[(temp->pdata)->posX][(temp->pdata)->posY] = NULL;
+                
+                //On saute l'indice à supprimer
+                *current = temp->suiv;
 
-            //On va au joueur suivant
-            tmp = tmp->suiv;
-            compteur++;
+                //On libère la mémoire
+                free(temp->pdata);
+                free(temp);              
+            }else{
+                //On va au joueur suivant si on a rien supprimé
+                current = &((*current)->suiv);
+            }
+            
         }
     }
-    
-
-    
 }
 
 
 //Fonction qui gère un cycle d'attaque pour un joueur passé en paramètre
-void attaquePlayer(TplateauJeu jeu, int** chemin, Tunite *roi, TListePlayer j){
+void attaquePlayer(TplateauJeu jeu, int** chemin, Tunite **roi, TListePlayer j){
     TListePlayer joueur = j;
-    Tunite *uniteTemp;
     TListePlayer ciblesJoueur;
     Tunite *cible;
-
     //Parcours de la liste
     while(joueur != NULL){
-        uniteTemp = joueur->pdata;
         //On récupère les cibles de l'unité et on trie la liste
-        ciblesJoueur = quiEstAPortee(jeu, uniteTemp, chemin, roi);
+        ciblesJoueur = quiEstAPortee(jeu, joueur->pdata, chemin, roi);
+        
         if(ciblesJoueur != NULL){
-
             triSelectionFcomp(ciblesJoueur, moinsDePointsDeVies);
-            combat(uniteTemp, ciblesJoueur->pdata);
-
+            combat(joueur->pdata, ciblesJoueur->pdata);
         }
-
-        //On passe à l'unité suivante
+        
+        //On libère la liste des unités à porter
+        while(ciblesJoueur != NULL){
+            TListePlayer tmp = ciblesJoueur;
+            ciblesJoueur = ciblesJoueur->suiv;
+            free(tmp);
+        }
+        //On passe à l'unité suivante et on libère la liste des cibles
         joueur = joueur->suiv;
-    }
+        
+    }   
     
 }
 

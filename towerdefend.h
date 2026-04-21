@@ -84,12 +84,12 @@ void print_list(float *l, int taille);
 void updateCoord(TListePlayer player, int **chemin, TplateauJeu jeu);
 Tunite *randomUnite(int** chemin);
 
-TListePlayer quiEstAPortee(TplateauJeu jeu, Tunite *UniteAttaquante, int **chemin, Tunite *roi);
+TListePlayer quiEstAPortee(TplateauJeu jeu, Tunite *UniteAttaquante, int **chemin, Tunite **roi);
 void print_TlistePlayer(TListePlayer l);
 void triSelectionFcomp(TListePlayer listeUnites, bool (*fcomp)(Tunite *unite1, Tunite *unite2));
 bool moinsDePointsDeVies(Tunite *unite1, Tunite *unite2); 
 
 void combat(Tunite *UniteAttaquante, Tunite *UniteCible);
-void attaquePlayer(TplateauJeu jeu, int** chemin, Tunite *roi, TListePlayer j);
+void attaquePlayer(TplateauJeu jeu, int** chemin, Tunite **roi, TListePlayer j);
 
 #endif // TOWERDEFEND_H_INCLUDED
