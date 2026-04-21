@@ -211,7 +211,7 @@ Tunite *creeTourRoi(int posx, int posy){
     nouv->nom = tourRoi;
     nouv->cibleAttaquable = solEtAir;
     nouv->maposition = sol;
-    nouv->pointsDeVie = 8000;
+    nouv->pointsDeVie = 100;
     nouv->vitesseAttaque = 1.2;
     nouv->degats = 180;
     nouv->portee = 4;
@@ -606,4 +606,216 @@ void print_list(float *l, int taille){
         printf("%f ; ", l[i]);
     }
     printf("\n");
+}
+
+
+void printOutUnite(FILE *pointeur, Tunite *unite){
+
+    fprintf(pointeur,"%d ", unite->nom);
+    fprintf(pointeur,"%d ", unite->pointsDeVie);
+    fprintf(pointeur,"%d ", unite->posX);
+    fprintf(pointeur,"%d ", unite->posY);
+    fprintf(pointeur,"%f ", unite->indChemin);
+
+};
+
+void SaveState(TListePlayer PlayerAtk, TListePlayer PlayerRoi, char *file, int **chemin){
+    FILE *f_out;
+    int nbAtk = getNbreCell(PlayerAtk);
+    int nbDef = getNbreCell(PlayerRoi);
+
+    if ((f_out = fopen(file,"w")) == NULL)
+      {
+        fprintf(stderr, "\nErreur: Impossible de sauvegarder %s\n",file);
+        return;
+      }
+
+    TListePlayer tmpAtk = PlayerAtk;
+    TListePlayer tmpRoi = PlayerRoi;
+
+    fprintf(f_out, "%d \n", nbAtk);
+
+    while (tmpAtk != NULL) {
+
+        printOutUnite(f_out, tmpAtk->pdata);
+
+        tmpAtk = tmpAtk->suiv;
+    }
+    fprintf(f_out, "\n\n");
+    fprintf(f_out, "%d \n", nbDef);
+
+    while (tmpRoi != NULL){
+        printOutUnite(f_out, tmpRoi->pdata);
+
+        tmpRoi = tmpRoi->suiv;
+    }
+
+    fprintf(f_out, "\n\n");
+
+    for (int i = 0; i < NBCOORDPARCOURS; i++){
+        for (int j = 0; j < 2; j++){
+            fprintf(f_out, "%d ", chemin[i][j]);
+        }
+    }
+
+    fclose(f_out);
+
+}
+
+
+
+int** repriseSave(char *file, TListePlayer *playerAtk, TListePlayer *playerRoi){
+    int nbAtk;
+    int nbRoi;
+    FILE *f_in;
+
+    if ((f_in = fopen(file,"r")) == NULL)
+      {
+        fprintf(stderr, "\nErreur: Impossible de sauvegarder %s\n",file);
+      };
+
+    fscanf(f_in, "%d", &nbAtk);
+
+    for (int i = 0; i < nbAtk; i++){
+        int typeUnite;
+        int posX, posY;
+        int pointDeVie;
+        float indChemin;
+
+        fscanf(f_in, "%d %d %d %d %f", &typeUnite,&pointDeVie, &posX, &posY, &indChemin);
+
+        Tunite *nouvelleUnite = NULL;
+
+        switch (typeUnite) {
+            case dragon: nouvelleUnite = creeDragon(posX, posY); break;
+            case gargouille : nouvelleUnite = creeGargouille(posX, posY); break;
+            case archer: nouvelleUnite = creeArcher(posX, posY); break;
+            case chevalier: nouvelleUnite = creeChevalier(posX, posY); break;
+            case tourAir: nouvelleUnite = creeTourAir(posX, posY); break;
+            case tourSol: nouvelleUnite = creeTourSol(posX, posY); break;
+            case tourRoi: nouvelleUnite = creeTourRoi(posX, posY); break;
+            default: printf("Erreur: unité inexistante\n"); break;
+        }
+
+        AjouterUnite(playerAtk, nouvelleUnite);
+        nouvelleUnite->indChemin = indChemin;
+        nouvelleUnite->pointsDeVie = pointDeVie;
+    }
+
+    fscanf(f_in, "%d", &nbRoi);
+
+    for (int i = 0; i < nbRoi; i++){
+        int typeUnite;
+        int posX, posY;
+        int pointDeVie;
+        float indChemin;
+
+        fscanf(f_in, "%d %d %d %d %f", &typeUnite,&pointDeVie, &posX, &posY, &indChemin);
+
+        Tunite *nouvelleUnite = NULL;
+
+        switch (typeUnite) {
+            case tourAir: nouvelleUnite = creeTourAir(posX, posY); break;
+            case tourSol: nouvelleUnite = creeTourSol(posX, posY); break;
+            case tourRoi: nouvelleUnite = creeTourRoi(posX, posY); break;
+            default: printf("Erreur: unité inexistante\n");
+        }
+
+        AjouterUnite(playerRoi, nouvelleUnite);
+        nouvelleUnite->pointsDeVie = pointDeVie;
+    }
+
+    int **chemin = (int **)malloc(sizeof(int *)*NBCOORDPARCOURS);
+
+    for (int i = 0; i < NBCOORDPARCOURS; i++){
+
+        chemin[i] = (int*)malloc(sizeof(int)*2);
+
+        for (int j = 0; j < 2; j++){
+            fscanf(f_in, "%d", &chemin[i][j]);
+        }
+    }
+
+    fclose(f_in);
+
+    return chemin;
+}
+
+
+
+void SaveStateBin(TListePlayer PlayerAtk, TListePlayer PlayerRoi, char *file, int **chemin){
+    FILE *f_out = fopen(file, "wb");
+
+    if (f_out == NULL) {
+        fprintf(stderr, "\nErreur: Impossible de sauvegarder %s\n", file);
+        return;
+    }
+
+    int nbAtk = getNbreCell(PlayerAtk);
+    fwrite(&nbAtk, sizeof(int), 1, f_out);
+
+    TListePlayer tmpAtk = PlayerAtk;
+    while (tmpAtk != NULL) {
+        fwrite(tmpAtk->pdata, sizeof(Tunite), 1, f_out);
+        tmpAtk = tmpAtk->suiv;
+    }
+
+    int nbRoi = getNbreCell(PlayerRoi);
+    fwrite(&nbRoi, sizeof(int), 1, f_out);
+
+    TListePlayer tmpRoi = PlayerRoi;
+    while (tmpRoi != NULL) {
+        fwrite(tmpRoi->pdata, sizeof(Tunite), 1, f_out);
+        tmpRoi = tmpRoi->suiv;
+    }
+
+    for (int i = 0; i < NBCOORDPARCOURS; i++){
+        fwrite(chemin[i], sizeof(int), 2, f_out);
+    }
+
+    fclose(f_out);
+}
+
+
+
+int** repriseSaveBin(char *file, TListePlayer *playerAtk, TListePlayer *playerRoi){
+    FILE *f_in = fopen(file, "rb");
+    if (f_in == NULL) {
+        fprintf(stderr, "\nErreur: Impossible de charger %s\n", file);
+        return NULL;
+    }
+
+
+    //Lecture liste Attaque
+    int nbAtk;
+    fread(&nbAtk, sizeof(int), 1, f_in);
+
+    for (int i = 0; i < nbAtk; i++){
+            Tunite *nouvelleUnite = (Tunite*)malloc(sizeof(Tunite));
+            fread(nouvelleUnite, sizeof(Tunite), 1, f_in);
+            AjouterUnite(playerAtk, nouvelleUnite);
+        }
+
+
+    //Lecture liste Roi
+    int nbDef;
+    fread(&nbDef, sizeof(int), 1, f_in);
+
+    for (int i = 0; i < nbDef; i++){
+        Tunite *nouvelleUnite = (Tunite*)malloc(sizeof(Tunite));
+        fread(nouvelleUnite, sizeof(Tunite), 1, f_in);
+        AjouterUnite(playerRoi, nouvelleUnite);
+    }
+
+    //Lecture chemin
+    int **chemin = (int **)malloc(sizeof(int *)*NBCOORDPARCOURS);
+    for (int i = 0; i < NBCOORDPARCOURS; i++){
+        chemin[i] = (int*)malloc(sizeof(int)*2);
+
+        // On lit les 2 cases (X et Y) d'un coup pour cette ligne
+        fread(chemin[i], sizeof(int), 2, f_in);
+    }
+
+    fclose(f_in);
+    return chemin;
 }

@@ -1,6 +1,7 @@
 #ifndef TOWERDEFEND_H_INCLUDED
 #define TOWERDEFEND_H_INCLUDED
 
+#include "stdio.h"
 #include "stdbool.h"
 
 #define LARGEURJEU 11
@@ -84,6 +85,11 @@ void calculNewInd(TListePlayer player, int** chemin);
 void print_list(float *l, int taille);
 void updateCoord(TListePlayer player, int **chemin, TplateauJeu jeu);
 Tunite *randomUnite(int** chemin);
+
+void SaveState(TListePlayer PlayerAtk, TListePlayer PlayerRoi, char *file, int **chemin);
+int **repriseSave(char *file, TListePlayer *playerAtk, TListePlayer *playerRoi);
+int** repriseSaveBin(char *file, TListePlayer *playerAtk, TListePlayer *playerRoi);
+void SaveStateBin(TListePlayer PlayerAtk, TListePlayer PlayerRoi, char *file, int **chemin);
 
 
 #endif // TOWERDEFEND_H_INCLUDED
