@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -35,66 +36,10 @@ float **AlloueTab2DBis(int hauteur, int largeur){
 }
 
 
-void append(float **tab, float val, int NewTaille){
-
-    float *newTab = realloc(*tab, sizeof(float)*(NewTaille));
-
-    if (newTab != NULL){
-        newTab[NewTaille-1] = val;
-    }
-
-    *tab = newTab;
-}
 
 
 
-/*
-void ecritCheminVersleHaut  : permet d'initilaiser le tab chemin de distance cases (avec des coord x y) dans une direction, ? partir d'un point x y donn?
-
-int **chemin  : tab de coordonn?es x y du chemin
-int *ichemin  : indice de la case du chemin d'o? on part
-int *xdepart, int *ydepart : valeur en x y de d?part pouri la premiere case
-int distance  : distance sur laquelle on va ?crire des coordonn?es dans le tab chemin
-int *distanceMaxRestante : securit? pour ne pas sortir de la plage d'indice de chemin
-*/
-void ecritCheminVersleHaut(int **chemin, int *ichemin, int *xdepart, int *ydepart, int distance, int *distanceMaxRestante){
-    if ((*distanceMaxRestante - distance)>=0){
-        int y;
-        for (y=*ydepart;y>*ydepart-distance;y--){
-            chemin[*ichemin][X]= *xdepart;
-            chemin[*ichemin][Y]= y;
-            (*ichemin)++;
-        }
-        *ydepart=y;
-    }
-    else printf("erreur longueur chemin\n");
-}
-void ecritCheminVerslaDroite(int **chemin, int *ichemin, int *xdepart, int *ydepart, int distance, int *distanceMaxRestante){
-    if ((*distanceMaxRestante - distance)>=0){
-        int x;
-        for (x=*xdepart;x<*xdepart+distance;x++){
-            chemin[*ichemin][X]= x;
-            chemin[*ichemin][Y]= *ydepart;
-            (*ichemin)++;
-        }
-        *xdepart=x;
-    }
-    else printf("erreur longueur chemin\n");
-}
-
-void ecritCheminVerslaGauche(int **chemin, int *ichemin, int *xdepart, int *ydepart, int distance, int *distanceMaxRestante){
-    if ((*distanceMaxRestante - distance)>=0){
-        int x;
-        for (x=*xdepart;x>*xdepart-distance;x--){
-            chemin[*ichemin][X]= x;
-            chemin[*ichemin][Y]= *ydepart;
-            (*ichemin)++;
-        }
-        *xdepart=x;
-    }
-    else printf("erreur longueur chemin\n");
-}
-
+//Initialise le chemin de manière aléatoire
 int **initChemin(){
     int **chemin = (int**)malloc(sizeof(int*)*NBCOORDPARCOURS);
 
@@ -104,18 +49,93 @@ int **initChemin(){
 
     int ydepart = 18;  //et non 19
     int xdepart = 5;  //5 = milieu de la fenetre de 11 de largeur (0-10)
-    int i = 0;  //parcourt les i cases du chemin
     int distanceMaxRestante = NBCOORDPARCOURS;
+    bool chemin_fini = false;
 
-    ecritCheminVersleHaut(chemin, &i, &xdepart, &ydepart, 3, &distanceMaxRestante);
-    ecritCheminVerslaDroite(chemin, &i, &xdepart, &ydepart, 4, &distanceMaxRestante);
-    ecritCheminVersleHaut(chemin, &i, &xdepart, &ydepart, 4, &distanceMaxRestante);
-    ecritCheminVerslaGauche(chemin, &i, &xdepart, &ydepart, 5, &distanceMaxRestante);
-    ecritCheminVersleHaut(chemin, &i, &xdepart, &ydepart, 4, &distanceMaxRestante);
-    ecritCheminVerslaDroite(chemin, &i, &xdepart, &ydepart, 4, &distanceMaxRestante);
-    ecritCheminVersleHaut(chemin, &i, &xdepart, &ydepart, 3, &distanceMaxRestante);
-    ecritCheminVerslaGauche(chemin, &i, &xdepart, &ydepart, 4, &distanceMaxRestante);
-    ecritCheminVersleHaut(chemin, &i, &xdepart, &ydepart, 3, &distanceMaxRestante);
+    while (!chemin_fini) { //On entre dans la boucle de creation du chemin
+                           //Si le chemin tombe sur une impasse, il recommence à 0
+
+        int last_dir=-1;
+        int dir;
+
+        int cases_forcee = 0;
+
+        chemin[0][0] = xdepart;
+        chemin[0][1] = ydepart;
+
+        bool impasse = false;
+
+        for (int o = 1; o < NBCOORDPARCOURS; o++){ //Boucle pour determiner chaque cases du tableau
+
+            bool moveValid = false;
+            int nextX, nextY;
+
+            int tentatives = 0;
+
+            while (!moveValid && tentatives < 40) { //On entre dans la boucle pour decider du choix de la case indice o
+
+                if (cases_forcee > 0){
+                    dir = last_dir;
+                }
+                else {
+                    dir = rand()%3;
+                }
+
+                tentatives++;
+                bool DemiTour = false;
+
+                if (dir == 0 && last_dir == 1) DemiTour = true;
+                if (dir == 1 && last_dir == 0) DemiTour = true;
+                // if (dir == 2 && last_dir == 3) DemiTour = true;
+                // if (dir == 3 && last_dir == 2) DemiTour = true;
+
+                if (!DemiTour){
+                    nextX = chemin[o-1][0];
+                    nextY = chemin[o-1][1];
+
+                    switch (dir) {
+                        case 0: nextX++; break;
+                        case 1: nextX--; break;
+                        case 2: nextY--; break;
+                    }
+
+                    if (nextX < LARGEURJEU && nextX >= 0 && nextY < HAUTEURJEU && nextY >= 0){
+                        bool caseDejaUtilisee = false;
+                        for (int q = 0; q < o; q++){
+                            if (chemin[q][0] == nextX && chemin[q][1]== nextY) {caseDejaUtilisee = true; break;}
+                        }
+
+                        if (!caseDejaUtilisee){
+                            moveValid = true;
+
+                            chemin[o][0] = nextX;
+                            chemin[o][1] = nextY;
+
+                            if (cases_forcee > 0) {
+                                cases_forcee--;
+                            }
+
+                            else if (last_dir != -1 && dir != last_dir) {
+                                cases_forcee++;
+                            }
+
+                            last_dir = dir;
+                        }
+                    }
+                }
+            }
+
+            if (!moveValid){
+                impasse = true;
+                break;
+            }
+        }
+
+        if (!impasse){
+            chemin_fini = true;
+        }
+
+    }
 
     return chemin;  //tab2D contenant des pointeurs
 }
@@ -234,7 +254,7 @@ Tunite *creeDragon(int posx, int posy){
     nouv->vitesseAttaque = 1.1;
     nouv->degats = 180;
     nouv->portee = 2;
-    nouv->vitessedeplacement = 4;
+    nouv->vitessedeplacement = 1;
     nouv->posX = posx;
     nouv->posY = posy;
     nouv->peutAttaquer = 1;
@@ -254,7 +274,7 @@ Tunite *creeArcher(int posx, int posy){
     nouv->vitesseAttaque = 0.75;
     nouv->degats = 110;
     nouv->portee = 5;
-    nouv->vitessedeplacement = 3;
+    nouv->vitessedeplacement = 1;
     nouv->posX = posx;
     nouv->posY = posy;
     nouv->peutAttaquer = 1;
@@ -274,7 +294,7 @@ Tunite *creeGargouille(int posx, int posy){
     nouv->vitesseAttaque = 0.60;
     nouv->degats = 80;
     nouv->portee = 1;
-    nouv->vitessedeplacement = 3.5;
+    nouv->vitessedeplacement = 1;
     nouv->posX = posx;
     nouv->posY = posy;
     nouv->peutAttaquer = 1;
@@ -293,7 +313,7 @@ Tunite *creeChevalier(int posx, int posy){
     nouv->vitesseAttaque = 1.5;
     nouv->degats = 80;
     nouv->portee = 1;
-    nouv->vitessedeplacement = 3;
+    nouv->vitessedeplacement = 1;
     nouv->posX = posx;
     nouv->posY = posy;
     nouv->peutAttaquer = 1;
