@@ -77,7 +77,7 @@ Tunite *creeChevalier(int posx, int posy);
 bool canDamageKing(Tunite *unite, int **chemin);
 int farestDist(Tunite *unite, int** chemin, TListePlayer playerAtk);
 
-void supprimerUnite(TListePlayer *player, Tunite *UniteDetruite, TplateauJeu jeu);
+void supprimerUnite(TListePlayer *player, TplateauJeu jeu);
 void AjouterUnite(TListePlayer *player, Tunite *nouvelleUnite);
 void calculNewInd(TListePlayer player, int** chemin);
 void print_list(float *l, int taille);
@@ -90,5 +90,6 @@ void triSelectionFcomp(TListePlayer listeUnites, bool (*fcomp)(Tunite *unite1, T
 bool moinsDePointsDeVies(Tunite *unite1, Tunite *unite2); 
 
 void combat(Tunite *UniteAttaquante, Tunite *UniteCible);
+void attaquePlayer(TplateauJeu jeu, int** chemin, Tunite *roi, TListePlayer j);
 
 #endif // TOWERDEFEND_H_INCLUDED

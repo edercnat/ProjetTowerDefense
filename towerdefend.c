@@ -42,21 +42,6 @@ float **AlloueTab2DBis(int hauteur, int largeur){
 }
 
 
-//à supprimer ?
-
-// void append(float **tab, float val, int NewTaille){
-
-//     float *newTab = realloc(*tab, sizeof(float)*(NewTaille));
-
-//     if (newTab != NULL){
-//         newTab[NewTaille-1] = val;
-//     }
-
-//     *tab = newTab;
-// }
-
-
-
 /*
 void ecritCheminVersleHaut  : permet d'initilaiser le tab chemin de distance cases (avec des coord x y) dans une direction, ? partir d'un point x y donn?
 
@@ -350,6 +335,12 @@ Tunite *creeChevalier(int posx, int posy){
 
 
 
+//-------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
+//--------------------------------FONCTIONS GESTION DU JEU-----------------------------------------
+//-------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
+
 /*
 Cherche la cellule du roi et regarde si elle est détruite
 
@@ -412,29 +403,7 @@ void PositionnePlayerOnPlateau(TListePlayer player, TplateauJeu jeu){
 }
 
 
-/*
-!!!Fonctionnement pas sûr!!!
-J'ai du modifier la signature pour avoir un truc qui marche bien.
-Je ne sais pas si elle doit modifier elle meme le tableau de jeu mais sinon il y a une erreur avec l'appelle d'affichage car il ne sait pas comment afficher une adresse free.
-Donc fonction a vérifier
-*/
-void supprimerUnite(TListePlayer *player, Tunite *UniteDetruite, TplateauJeu jeu){
-    if (*player == NULL) {printf("Erreur : Liste déjà vide\n"); return;};
-    TListePlayer tmp = *player;
 
-    int compteur = 0;
-    while (tmp->pdata != UniteDetruite && tmp->suiv != NULL)
-    {
-        tmp = tmp->suiv;
-        compteur++;
-    }
-
-    if (tmp->pdata == UniteDetruite){
-        jeu[getptrData(tmp)->posX][getptrData(tmp)->posY] = NULL;
-        *player = suppEnN(*player, compteur);
-    }
-    else printf("Erreur: l'unité n'est pas présente dans la liste\n");
-}
 
 /*Ajoute simplement une unité a la fin de la liste d'un joueur
 Objectif: etre combiné à PositionnePlayerOnPlateau à chaque appel de boucle pour mettre à jour
@@ -604,7 +573,7 @@ bool canDamageKing(Tunite *unite, int **chemin){
 
 Return: type <int> -> nbre de cases à avancer (entre 0 et vitessedeplacement)
 */
-int farestDist(Tunite *unite, int** chemin, TListePlayer playerAtk){
+int farestDist(Tunite *unite, int** chemin, TListePlayer PlayerHorde){
     int indKing = NBCOORDPARCOURS-1;
     int distance = indKing - unite->indChemin;
 
@@ -624,7 +593,7 @@ int farestDist(Tunite *unite, int** chemin, TListePlayer playerAtk){
             int y = chemin[targetId][1];
 
             if ( x>= 0 && x < LARGEURJEU && y >= 0 && y < HAUTEURJEU){
-                if (!verifCaseLibre(targetId, playerAtk, unite)){
+                if (!verifCaseLibre(targetId, PlayerHorde, unite)){
                     return i;
                 }
             }
@@ -732,18 +701,70 @@ void triSelectionFcomp(TListePlayer listeUnites, bool (*fcomp)(Tunite *unite1, T
 
 //Fonction qui gère l'attaque d'une UniteAttaquante sur une UniteCible
 void combat(Tunite *UniteAttaquante, Tunite *UniteCible){
+    printf("%d", UniteCible->pointsDeVie);
     float degats = UniteAttaquante->degats / UniteAttaquante->vitesseAttaque;//degats par seconde
     UniteCible->pointsDeVie = UniteCible->pointsDeVie - degats; 
 }
 
+//Fonction qui permet de savoir s'il faut supprimer une unité car elle est morte ou non
+//(on renvoie faux pour le roi car sa mort est gérée par d'autres fonctions)
+bool estMort(Tunite *unite){
+    return unite->pointsDeVie <= 0 && unite->nom != tourRoi;
+}
+
+
+/*
+Fonction qui vérifie si les unités de la liste d'un joueur sont mortes et les supprime
+*/
+void supprimerUnite(TListePlayer *player, TplateauJeu jeu, int **chemin){
+    if(*player != NULL){
+        TListePlayer tmp = *player;
+        int compteur = 0;
+
+        while (tmp->suiv != NULL)
+        {
+            //Si l'unité est morte
+            if(estMort(tmp->pdata)){
+                printf("Il est mort \n");
+                //On supprime le pointeur dans la case du jeu
+                jeu[(tmp->pdata)->posX][(tmp->pdata)->posY] = NULL;
+                chemin()
+                //supprimer du chemin également
+                //tmp = suppEnN(tmp, compteur);
+            }
+
+            //On va au joueur suivant
+            tmp = tmp->suiv;
+            compteur++;
+        }
+    }
+    
+
+    
+}
+
+
 //Fonction qui gère un cycle d'attaque pour un joueur passé en paramètre
 void attaquePlayer(TplateauJeu jeu, int** chemin, Tunite *roi, TListePlayer j){
     TListePlayer joueur = j;
+    Tunite *uniteTemp;
+    TListePlayer ciblesJoueur;
+    Tunite *cible;
 
     //Parcours de la liste
     while(joueur != NULL){
-        //Cibles de l'unité
-        TListePlayer ciblesJoueur = quiEstAPortee()
+        uniteTemp = joueur->pdata;
+        //On récupère les cibles de l'unité et on trie la liste
+        ciblesJoueur = quiEstAPortee(jeu, uniteTemp, chemin, roi);
+        if(ciblesJoueur != NULL){
+
+            triSelectionFcomp(ciblesJoueur, moinsDePointsDeVies);
+            combat(uniteTemp, ciblesJoueur->pdata);
+
+        }
+
+        //On passe à l'unité suivante
+        joueur = joueur->suiv;
     }
     
 }
