@@ -714,7 +714,7 @@ bool estMort(Tunite *unite){
 
 
 /*
-Fonction qui vérifie si les unités de la liste d'un joueur sont mortes et les supprime
+Fonction qui vérifie si les unités de la horde sont mortes et les supprime
 */
 void supprimerUnite(TListePlayer *player, TplateauJeu jeu, int **chemin){
     if(*player != NULL){
