@@ -121,8 +121,46 @@ void freeChemin(int **tab){
     }
     free(tab);
 }
+//Fonction qui renvoie si la case appartient au chemin ou non
+// bool appartientChemin(int x, int y, int **chemin){
 
+// }
 
+//Fonction qui renvoie le nombre de case du chemin atteignables à une position x,y donnée
+//  return int -> le nombre de cases atteignables
+// int nbCaseCheminAtteignables(TplateauJeu jeu, int x, int y, int portee, int** chemin){
+//     //Initialisation du compteurs
+//     int nb = 0;
+
+//     //Si c'est une unité de la horde elle ne peut que attaquer le roi
+//     if(isHordeUnite(UniteAttaquante) && canDamageKing(UniteAttaquante, chemin)){
+//         listeUnitesAttaquables = ajoutEnFin(listeUnitesAttaquables, *roi);
+//     }
+//     //Sinon c'est une tour
+//     else{
+//         //On récupère les coordonnées de l'unité
+//         int coordX = UniteAttaquante->posX;
+//         int coordY = UniteAttaquante->posY;
+//         int portee = UniteAttaquante->portee;
+
+//         //printf("je suis en (%d,%d) et je vérifie les cases : \n", coordX, coordY);
+//         //On récupère les coordonnées incluses dans le tableau du jeu
+//         for(int i = coordX - portee ; i <= coordX + portee ; i++){
+//             for(int j = coordY - portee ; j <= coordY + portee ; j++){
+//                 //Si on est bien dans l'enceinte du plateau de jeu
+//                 if(i >= 0 && i <= LARGEURJEU - 1 && j >= 0 && j <= HAUTEURJEU - 1){
+//                     //si la case n'est pas vide on ajoute à la liste de retour
+//                     if(jeu[i][j] != NULL){
+//                         if(peutAttaquerUnite(UniteAttaquante, jeu[i][j])){
+//                             listeUnitesAttaquables = ajoutEnFin(listeUnitesAttaquables, jeu[i][j]);
+//                         }
+//                     }
+//                 }
+//             }
+//         }
+//     }
+//     return listeUnitesAttaquables;
+// }
 
 //-------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------
@@ -627,13 +665,18 @@ bool isHordeUnite (Tunite *Unite){
     }
 }
 
+
 //Fonction qui teste si l'unité tour peut attaquer l'unité unite 
 //(en fonction des positions)
 //  return bool :
 // true  -> la tour peut l'attaquer
 // false -> la tour ne peut pas l'attaquer
 bool peutAttaquerUnite(Tunite *tour, Tunite *unite){
-    return (isHordeUnite(unite) && (tour->cibleAttaquable == unite->maposition));
+    return (
+        isHordeUnite(unite) && //L'unité attaquée est bien de la horde 
+        (tour->cibleAttaquable == solEtAir || //La tour peut tout attaquer donc elle peut attaquer l'unité
+        tour->cibleAttaquable == unite->maposition //Ou la tour peut attaquer l'unité
+    )); 
 }
 
 
@@ -646,8 +689,10 @@ TListePlayer quiEstAPortee(TplateauJeu jeu, Tunite *UniteAttaquante, int** chemi
     initListe(&listeUnitesAttaquables);
 
     //Si c'est une unité de la horde elle ne peut que attaquer le roi
-    if(isHordeUnite(UniteAttaquante) && canDamageKing(UniteAttaquante, chemin)){
-        listeUnitesAttaquables = ajoutEnFin(listeUnitesAttaquables, *roi);
+    if(isHordeUnite(UniteAttaquante)){
+        if(canDamageKing(UniteAttaquante, chemin)){
+            listeUnitesAttaquables = ajoutEnFin(listeUnitesAttaquables, *roi);
+        }
     }
     //Sinon c'est une tour
     else{
@@ -672,6 +717,9 @@ TListePlayer quiEstAPortee(TplateauJeu jeu, Tunite *UniteAttaquante, int** chemi
             }
         }
     }
+    printf("Listes de unités attaquables :");
+    print_TlistePlayer(listeUnitesAttaquables);
+    printf("portée : %d \n", UniteAttaquante->portee);
     return listeUnitesAttaquables;
 }
 
