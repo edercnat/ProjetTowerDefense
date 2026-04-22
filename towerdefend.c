@@ -121,46 +121,90 @@ void freeChemin(int **tab){
     }
     free(tab);
 }
-//Fonction qui renvoie si la case appartient au chemin ou non
-// bool appartientChemin(int x, int y, int **chemin){
 
-// }
 
 //Fonction qui renvoie le nombre de case du chemin atteignables à une position x,y donnée
+//  jeuBis : plateau du jeu avec 1 pour les cases du chemin et 0 pour les autres
 //  return int -> le nombre de cases atteignables
-// int nbCaseCheminAtteignables(TplateauJeu jeu, int x, int y, int portee, int** chemin){
-//     //Initialisation du compteurs
-//     int nb = 0;
+int nbCaseCheminAtteignables(int jeuBis[LARGEURJEU][HAUTEURJEU], int x, int y, int portee){
+    //Initialisation du compteur
+    int nb = 0;
 
-//     //Si c'est une unité de la horde elle ne peut que attaquer le roi
-//     if(isHordeUnite(UniteAttaquante) && canDamageKing(UniteAttaquante, chemin)){
-//         listeUnitesAttaquables = ajoutEnFin(listeUnitesAttaquables, *roi);
-//     }
-//     //Sinon c'est une tour
-//     else{
-//         //On récupère les coordonnées de l'unité
-//         int coordX = UniteAttaquante->posX;
-//         int coordY = UniteAttaquante->posY;
-//         int portee = UniteAttaquante->portee;
+    //On parcourt la zone à portée de l'unité
+    for(int i = x - portee ; i <= x + portee ; i++){
+            for(int j = y - portee ; j <= y + portee ; j++){
+                //Si la case est bien dans l'enceinte du jeu
+                if(i >= 0 && i <= LARGEURJEU - 1 && j >= 0 && j <= HAUTEURJEU - 1){
+                    if(jeuBis[i][j] == 1){
+                        nb++;
+                    }
+                }
+            }
+    }
+    return nb;
+}
 
-//         //printf("je suis en (%d,%d) et je vérifie les cases : \n", coordX, coordY);
-//         //On récupère les coordonnées incluses dans le tableau du jeu
-//         for(int i = coordX - portee ; i <= coordX + portee ; i++){
-//             for(int j = coordY - portee ; j <= coordY + portee ; j++){
-//                 //Si on est bien dans l'enceinte du plateau de jeu
-//                 if(i >= 0 && i <= LARGEURJEU - 1 && j >= 0 && j <= HAUTEURJEU - 1){
-//                     //si la case n'est pas vide on ajoute à la liste de retour
-//                     if(jeu[i][j] != NULL){
-//                         if(peutAttaquerUnite(UniteAttaquante, jeu[i][j])){
-//                             listeUnitesAttaquables = ajoutEnFin(listeUnitesAttaquables, jeu[i][j]);
-//                         }
-//                     }
-//                 }
-//             }
-//         }
-//     }
-//     return listeUnitesAttaquables;
-// }
+//Fonction de comparaison des points de vies des unités
+//  return bool :
+// true  -> unite1 a moins de points de vies que unite2
+// false -> l'inverse
+bool moinsDePointsDeVies(Tunite *unite1, Tunite *unite2){
+    return unite1->pointsDeVie < unite2->pointsDeVie;
+}
+
+bool plusGrandScore(Tunite *unite1, Tunite *unite2){
+    return unite1->score_emplacement > unite2->score_emplacement;
+}
+
+//Fonction qui trie une liste TListePlayer de manière croissante avec une fonction de comparaison en paramètre
+void triSelectionFcomp(TListePlayer listeUnites, bool (*fcomp)(Tunite *unite1, Tunite *unite2)){
+    //On parcourt la liste chaînée 
+    for(TListePlayer debutUnsorted = listeUnites ; debutUnsorted != NULL ; debutUnsorted = debutUnsorted->suiv){
+        TListePlayer min = debutUnsorted;
+        //On parcourt la partie non triée
+        for(TListePlayer parcours = debutUnsorted; parcours != NULL ; parcours = parcours->suiv){
+            if(fcomp(parcours->pdata, min->pdata)){
+                min = parcours;
+            }
+        }
+        swapPtrData(min, debutUnsorted);
+    }
+}
+
+
+//Fonction qui renvoit la liste des meilleures cases du jeu pour une portée donnée
+TListePlayer listeMeilleuresCases(int jeuBis[LARGEURJEU][HAUTEURJEU], int portee){
+    //Création de la liste de retour
+    TListePlayer listeRetour;
+    initListe(&listeRetour);
+
+    //On parcours la liste
+    Tunite *caseTemp;
+    int scoreTemp;
+    for(int i = 0; i < LARGEURJEU ; i++){
+        for(int j = 0 ; j < HAUTEURJEU ; j++){
+            if(jeuBis[i][j] == 0){
+                scoreTemp = nbCaseCheminAtteignables(jeuBis, i, j, portee);
+                //On ajoute pas les cases qui n'ont pas de case du chemin à portée
+                if(scoreTemp > 0){
+                    if(portee == 3){
+                        caseTemp = creeTourSol(i,j);
+                    }
+                    else{
+                        caseTemp = creeTourAir(i,j);
+                    }
+                    
+                    caseTemp->score_emplacement = scoreTemp;
+                    listeRetour = ajoutEnFin(listeRetour, caseTemp);
+                }
+            }
+        }
+    }
+    triSelectionFcomp(listeRetour, plusGrandScore);
+    return listeRetour;
+}
+
+
 
 //-------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------
@@ -224,13 +268,7 @@ void print_TlistePlayer(TListePlayer l){
     printf("] \n");
 }
 
-//à Supprimer ?
-// void print_list(float *l, int taille){
-//     for (int i = 0; i < taille; i++){
-//         printf("%f ; ", l[i]);
-//     }
-//     printf("\n");
-// }
+
 
 //-------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------
@@ -584,6 +622,8 @@ Tunite *randomUnite(int** chemin){
     return unite;
 }
 
+
+
 /*L'unité est-elle a distance pour frapper le roi
 Return:
 type <bool> : true  -> elle peut taper
@@ -724,28 +764,7 @@ TListePlayer quiEstAPortee(TplateauJeu jeu, Tunite *UniteAttaquante, int** chemi
 }
 
 
-//Fonction de comparaison des points de vies des unités
-//  return bool :
-// true  -> unite1 a moins de points de vies que unite2
-// false -> l'inverse
-bool moinsDePointsDeVies(Tunite *unite1, Tunite *unite2){
-    return unite1->pointsDeVie < unite2->pointsDeVie;
-}
 
-//Fonction qui trie une liste TListePlayer de manière croissante avec une fonction de comparaison en paramètre
-void triSelectionFcomp(TListePlayer listeUnites, bool (*fcomp)(Tunite *unite1, Tunite *unite2)){
-    //On parcourt la liste chaînée 
-    for(TListePlayer debutUnsorted = listeUnites ; debutUnsorted != NULL ; debutUnsorted = debutUnsorted->suiv){
-        TListePlayer min = debutUnsorted;
-        //On parcourt la partie non triée
-        for(TListePlayer parcours = debutUnsorted; parcours != NULL ; parcours = parcours->suiv){
-            if(fcomp(parcours->pdata, min->pdata)){
-                min = parcours;
-            }
-        }
-        swapPtrData(min, debutUnsorted);
-    }
-}
 
 //Fonction qui gère l'attaque d'une UniteAttaquante sur une UniteCible
 void combat(Tunite *UniteAttaquante, Tunite *UniteCible){

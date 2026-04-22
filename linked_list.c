@@ -4,6 +4,12 @@
 #include "stdio.h"
 
 
+//-------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
+//--------------------------------LISTE DE TUNITE -------------------------------------------------
+//-------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
+
 char* nomUniteToString(TuniteDuJeu nom) {
     switch (nom) {
         case gargouille:  return "Gargouille";
@@ -233,3 +239,51 @@ void swapPtrData(TListePlayer l1, TListePlayer l2){
     l1 -> pdata = l2 -> pdata;
     l2 -> pdata = temp;
 }
+
+//-------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
+//--------------------------------LISTE DE CASES --------------------------------------------------
+//-------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
+
+// void initListeInt(TListeCase  *l){
+//     *l = NULL;
+// }
+
+// bool listeVideInt(TListeCase  l){
+//     return(l == NULL);
+// }
+
+// TListeCase ajoutEnFinInt(TListeCase l, int posX, int posY){
+//     TListeCase nouv = (TListeCase)malloc(sizeof(struct T_cellInt));
+//     nouv->x = posX;
+//     nouv->y = posY;
+
+//     TListeCase tmp = l;
+
+//     if (listeVideInt(l)){
+//         nouv->suiv = NULL;
+//         return nouv;
+//     }
+
+//     while (tmp->suiv != NULL)  
+//     {
+//         tmp = tmp->suiv;
+//     }
+
+//     tmp->suiv = nouv;
+//     nouv->suiv = NULL;
+
+//     return l;  
+// }
+
+// TListeCase suppEnTeteInt(TListeCase l){
+//     if (listeVideInt(l)) return NULL; //Cas liste vide
+
+//     TListeCase tmp = l;
+
+//     l = l->suiv;
+//     free(tmp);
+
+//     return l;
+// }

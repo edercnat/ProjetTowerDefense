@@ -32,10 +32,8 @@ typedef struct {
                             //0 = a d�j� attaqu�, 1 = peut attaquer ce tour-ci
                             // � remettre � 1 au d�but de chaque tour
     float indChemin;
-    //struct Tunite *cible;   //NULL si pas de cible. mettre � jour ce pointeur permet l'aninamtion (simpliste certe) du tir
-    //non utilis� au final -> utiliser directement dessineAttaque
 
-    //int score_emplacement;  //un clin d'oeil pour suscister une id�e de tri
+    int score_emplacement;  //un clin d'oeil pour suscister une idée de tri
 } Tunite;
 
 
@@ -91,5 +89,7 @@ bool moinsDePointsDeVies(Tunite *unite1, Tunite *unite2);
 
 void combat(Tunite *UniteAttaquante, Tunite *UniteCible);
 void attaquePlayer(TplateauJeu jeu, int** chemin, Tunite **roi, TListePlayer j);
+
+TListePlayer listeMeilleuresCases(int jeuBis[LARGEURJEU][HAUTEURJEU], int portee);
 
 #endif // TOWERDEFEND_H_INCLUDED
