@@ -85,12 +85,20 @@ Tunite *randomUnite(int** chemin);
 TListePlayer quiEstAPortee(TplateauJeu jeu, Tunite *UniteAttaquante, int **chemin, Tunite **roi);
 void print_TlistePlayer(TListePlayer l);
 void triSelectionFcomp(TListePlayer listeUnites, bool (*fcomp)(Tunite *unite1, Tunite *unite2));
-bool moinsDePointsDeVies(Tunite *unite1, Tunite *unite2); 
+bool moinsDePointsDeVies(Tunite *unite1, Tunite *unite2);
 
 void combat(Tunite *UniteAttaquante, Tunite *UniteCible);
 void attaquePlayer(TplateauJeu jeu, int** chemin, Tunite **roi, TListePlayer j);
 
 TListePlayer listeMeilleuresCases(int jeuBis[LARGEURJEU][HAUTEURJEU], int portee);
 void freeListePlayer(TListePlayer *l);
+
+
+void SaveState(TListePlayer PlayerAtk, TListePlayer PlayerRoi, char *file, int **chemin);
+int** repriseSave(char *file, TListePlayer *playerAtk, TListePlayer *playerRoi);
+
+void SaveStateBin(TListePlayer PlayerAtk, TListePlayer PlayerRoi, char *file, int **chemin);
+int** repriseSaveBin(char *file, TListePlayer *playerAtk, TListePlayer *playerRoi);
+
 
 #endif // TOWERDEFEND_H_INCLUDED
