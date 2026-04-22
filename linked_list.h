@@ -29,15 +29,7 @@ Tunite *getptrData(TListePlayer l);
 int getNbreCell(TListePlayer l);
 void swapPtrData(TListePlayer l1, TListePlayer l2);
 
-// typedef struct T_cellInt{
-//     int x;
-//     int y;
-//     struct T_cellInt *suiv;
-// } *TListeCase;
-// void initListeInt(TListeCase  *l);
-// bool listeVideInt(TListeCase  l);
-// TListeCase ajoutEnFinInt(TListeCase l, int posX, int posY);
-// TListeCase suppEnTeteInt(TListeCase l);
+
 
 
 #endif

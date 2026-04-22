@@ -45,7 +45,8 @@ int main(int argc, char* argv[])
         //Positionnement des tours de manière optimisée
         PositionnePlayerOnPlateau(PlayerRoi, jeu);
 
-        //Création du plateau simplifié
+        //Création du plateau simplifié (ou le chemin apparaît)
+        //Cela sert à trouver les meilleures cases
         int jeuBis[LARGEURJEU][HAUTEURJEU];
         for(int i = 0; i < LARGEURJEU ; i++){
                 for(int j = 0 ; j < HAUTEURJEU ; j++){    
@@ -60,21 +61,13 @@ int main(int argc, char* argv[])
         TListePlayer tabPortee5 = listeMeilleuresCases(jeuBis, 5);
         TListePlayer tabPortee3 = listeMeilleuresCases(jeuBis, 3);
         TListePlayer *tabChoisi; //Variables pour le traitement
-        TListePlayer tabASuppr;
         TListePlayer tabTemp;
 
-        //Variable qui sert à garder en mémoire les unités
         
 
         //-------------------------------------------------------------------------------------------------------------------------------
         //--------------------------------------------VARIABLES DE TESTS ET AUTRES-------------------------------------------------------
         //-------------------------------------------------------------------------------------------------------------------------------
-        // //Pour la tour random
-        // Tunite *tour = creeTourAir(3,3);
-        // Tunite *tour1 = creeTourSol(5,3);
-        // AjouterUnite(&PlayerRoi, tour);
-        // AjouterUnite(&PlayerRoi, tour1);
-
         
 
 
@@ -106,8 +99,8 @@ int main(int argc, char* argv[])
 
 
                 //Apparitions aléatoire des unités de la horde
-                int spawn = rand()%2; //random pour faire apparaitre une unité
-                if (spawn == 0){
+                
+                if(hasard%100 < 70){
                         AjouterUnite(&PlayerHorde, randomUnite(chemin));
                 }
 
@@ -119,26 +112,26 @@ int main(int argc, char* argv[])
                 // 1 : Tour air
 
                 //20% de chance qu'une tour apparaisse
-                if(hasard%100 < 20){
+                if(hasard%100 < 10){
                         if(hasard%2 == 0){
                                 tabChoisi = &tabPortee3;
-                                tabASuppr = tabPortee5;
                         }
                         else{
                                 tabChoisi = &tabPortee5;
-                                tabASuppr = tabPortee3;
                         }
                         tabTemp = *tabChoisi;
                         //Si la case est déjà occupée on supprime l'unité de la liste et on prend la suivante
                         //(cela arrive car on a deux tableaux pour les deux portées différentes)
                         while(jeu[(*tabChoisi)->pdata->posX][(*tabChoisi)->pdata->posY] != NULL){
-                                *tabChoisi = (*tabChoisi)->suiv;
                                 tabTemp = *tabChoisi;
+                                *tabChoisi = (*tabChoisi)->suiv;
+                                free(tabTemp->pdata);
+                                free(tabTemp);
                         }
-                        AjouterUnite(&PlayerRoi, (*tabChoisi)->pdata);
                         
-
+                        AjouterUnite(&PlayerRoi, (*tabChoisi)->pdata);
                         jeu[(*tabChoisi)->pdata->posX][(*tabChoisi)->pdata->posY] = (*tabChoisi)->pdata;
+                        *tabChoisi = (*tabChoisi)->suiv;
                 }
                 
                 
@@ -150,9 +143,7 @@ int main(int argc, char* argv[])
                 //Gestion des attaques de toutes les unités
                 attaquePlayer(jeu, chemin, &roi, PlayerHorde);
                 attaquePlayer(jeu, chemin, &roi, PlayerRoi);
-                
-                print_TlistePlayer(PlayerHorde);
-                
+                                
                 
 
                 //Supprime les unités mortes
@@ -171,12 +162,20 @@ int main(int argc, char* argv[])
                 
                 sleep(1);
                 if (!tourRoiDetruite(PlayerRoi)){
-                        //system("clear");
+                        system("clear");
                 }
         }
 
         affichePlateauConsole(jeu, LARGEURJEU, HAUTEURJEU, chemin);
+
+        //Libération de la mémoire
         freeChemin(tabParcours);
+        freeListePlayer(&tabPortee5);
+        freeListePlayer(&tabPortee3);
+        freeListePlayer(tabChoisi);
+        freeListePlayer(&tabTemp);
+        freeListePlayer(&PlayerRoi);
+        freeListePlayer(&PlayerHorde);
         return 0;
 
 }

@@ -91,5 +91,6 @@ void combat(Tunite *UniteAttaquante, Tunite *UniteCible);
 void attaquePlayer(TplateauJeu jeu, int** chemin, Tunite **roi, TListePlayer j);
 
 TListePlayer listeMeilleuresCases(int jeuBis[LARGEURJEU][HAUTEURJEU], int portee);
+void freeListePlayer(TListePlayer *l);
 
 #endif // TOWERDEFEND_H_INCLUDED

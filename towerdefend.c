@@ -409,7 +409,18 @@ Tunite *creeChevalier(int posx, int posy){
     return nouv;
 }
 
+//-------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
+//--------------------------------FONCTIONS LIBERATION DE MEMOIRE----------------------------------
+//-------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
 
+//Fonction qui libère la méméoire d'une liste
+void freeListePlayer(TListePlayer *l){
+    while(*l != NULL){
+        *l = suppEnTete(*l);
+    }
+}
 
 //-------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------
@@ -601,6 +612,7 @@ Tunite *randomUnite(int** chemin){
     int result = rand()%4;
 
     Tunite* unite;
+
     switch (result)
     {
     case 0:
@@ -616,6 +628,7 @@ Tunite *randomUnite(int** chemin){
         unite = creeChevalier(chemin[0][0],chemin[0][1]);
         break;
     default:
+        unite = NULL;
         break;
     }
 
@@ -757,9 +770,9 @@ TListePlayer quiEstAPortee(TplateauJeu jeu, Tunite *UniteAttaquante, int** chemi
             }
         }
     }
-    printf("Listes de unités attaquables :");
-    print_TlistePlayer(listeUnitesAttaquables);
-    printf("portée : %d \n", UniteAttaquante->portee);
+    // printf("Listes de unités attaquables :");
+    // print_TlistePlayer(listeUnitesAttaquables);
+    // printf("portée : %d \n", UniteAttaquante->portee);
     return listeUnitesAttaquables;
 }
 
@@ -819,7 +832,6 @@ void supprimerUnite(TListePlayer *player, TplateauJeu jeu){
 void attaquePlayer(TplateauJeu jeu, int** chemin, Tunite **roi, TListePlayer j){
     TListePlayer joueur = j;
     TListePlayer ciblesJoueur;
-    Tunite *cible;
     //Parcours de la liste
     while(joueur != NULL){
         //On récupère les cibles de l'unité et on trie la liste
